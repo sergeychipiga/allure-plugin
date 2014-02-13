@@ -97,13 +97,6 @@
                                     <type>war</type>
                                     <excludes>**\/*.jar,**/META-INF,**/WEB-INF</excludes>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>ru.yandex.qatools.allure</groupId>
-                                    <artifactId>allure-model</artifactId>
-                                    <version>${allure.version}</version>
-                                    <type>test-jar</type>
-                                    <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -147,12 +140,6 @@
             <groupId>ru.yandex.qatools.allure</groupId>
             <artifactId>allure-report-data</artifactId>
             <version>${allure.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ru.yandex.qatools.allure</groupId>
-            <artifactId>allure-model</artifactId>
-            <version>${allure.version}</version>
-            <type>test-jar</type>
         </dependency>
     </dependencies>
 
