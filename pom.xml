@@ -40,10 +40,6 @@
         <url>https://github.com/allure-framework/allure-core/issues</url>
     </issueManagement>
 
-    <properties>
-        <allure.version>1.3.1</allure.version>
-    </properties>
-
     <developers>
         <developer>
             <id>eroshenkoam</id>
@@ -62,6 +58,13 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.jenkins-ci.tools</groupId>
+                <artifactId>maven-hpi-plugin</artifactId>
+                <configuration>
+                    <pluginFirstClassLoader>true</pluginFirstClassLoader>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
