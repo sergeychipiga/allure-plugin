@@ -40,6 +40,10 @@
         <url>https://github.com/allure-framework/allure-core/issues</url>
     </issueManagement>
 
+    <properties>
+        <allure.version>1.3.1</allure.version>
+    </properties>
+
     <developers>
         <developer>
             <id>eroshenkoam</id>

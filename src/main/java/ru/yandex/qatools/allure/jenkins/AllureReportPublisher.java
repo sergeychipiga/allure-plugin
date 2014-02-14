@@ -75,7 +75,7 @@ public class AllureReportPublisher extends Recorder implements Serializable {
         FilePath generatedAllureReportData = generateAllureReportData(build, this.resultsPath);
 
         FilePath allureReport = new FilePath(build.getRootDir()).child(AllureReportPlugin.ALLURE_REPORT_PATH);
-        generatedAllureReportData.copyRecursiveTo(allureReport.child(AllureReportPlugin.ALLURE_REPORT_DATA_PATH));
+        generatedAllureReportData.copyRecursiveTo(allureReport);
 
         logger.println(MessageFormat.format("Allure: copy allure report face to <{0}>", allureReport));
         copyAllureReportFaceTo(allureReport);
