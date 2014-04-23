@@ -54,37 +54,37 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     }
     
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
-        return new MatrixAggregator(build, launcher, listener) {
-        	
-        	public static final String ALLURE_MATRIX_TEMP_DIR = "allure_matrix_temp";
-        	
-        	@Override
-        	public boolean endBuild() throws InterruptedException, IOException {
-            	FilePath dst = new FilePath(build.getWorkspace(), AllureReportPublisher.this.resultsPath);
-            	if(dst.exists() && dst.getRemote() != build.getWorkspace().getRemote()){
-            		dst.deleteRecursive();
-            	}
-            	
-            	for(MatrixRun run : build.getExactRuns()) {
-            		FilePath src = new FilePath(run.getWorkspace(), AllureReportPublisher.this.resultsPath);
-            		if(dst.isRemote()){
-	            		FilePath tempMasterDir = new FilePath(build.getRootDir()).child(ALLURE_MATRIX_TEMP_DIR);
-	            		try {
-		            		src.copyRecursiveTo(tempMasterDir);
-		            		tempMasterDir.copyRecursiveTo(dst);
-	            		}
-	            		finally {
-	            			if (tempMasterDir.exists()) {
-	            				tempMasterDir.deleteRecursive();
-	            			}
-	            		}
-            		} else {
-            			src.copyRecursiveTo(dst);
-            		}
-            	}
-            	return perform(build, launcher, listener);
-            }
-        };
+    	return new MatrixAggregator(build, launcher, listener) {
+
+    		public static final String ALLURE_MATRIX_TEMP_DIR = "allure_matrix_temp";
+
+    		@Override
+    		public boolean endBuild() throws InterruptedException, IOException {
+    			FilePath dst = new FilePath(build.getWorkspace(), AllureReportPublisher.this.resultsPath);
+    			if(dst.exists() && dst.getRemote() != build.getWorkspace().getRemote()){
+    				dst.deleteRecursive();
+    			}
+
+    			for(MatrixRun run : build.getExactRuns()) {
+    				FilePath src = new FilePath(run.getWorkspace(), AllureReportPublisher.this.resultsPath);
+    				if(dst.isRemote()){
+    					FilePath tempMasterDir = new FilePath(build.getRootDir()).child(ALLURE_MATRIX_TEMP_DIR);
+    					try {
+    						src.copyRecursiveTo(tempMasterDir);
+    						tempMasterDir.copyRecursiveTo(dst);
+    					}
+    					finally {
+    						if (tempMasterDir.exists()) {
+    							tempMasterDir.deleteRecursive();
+    						}
+    					}
+    				} else {
+    					src.copyRecursiveTo(dst);
+    				}
+    			}
+    			return perform(build, launcher, listener);
+    		}
+    	};
     }
 
     @Override
