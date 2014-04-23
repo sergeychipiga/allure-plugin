@@ -2,6 +2,7 @@ package ru.yandex.qatools.allure.jenkins;
 
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
@@ -30,7 +31,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * {@link AllureReportPublisherDescriptor}
  */
 @SuppressWarnings("unchecked")
-public class AllureReportPublisher extends Recorder implements Serializable {
+public class AllureReportPublisher extends Recorder implements Serializable, MatrixAggregatable {
 
     private static final long serialVersionUID = 1L;
 
