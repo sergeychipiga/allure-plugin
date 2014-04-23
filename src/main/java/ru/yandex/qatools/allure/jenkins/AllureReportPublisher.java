@@ -2,11 +2,14 @@ package ru.yandex.qatools.allure.jenkins;
 
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractProject;
+import hudson.matrix.MatrixAggregator;
+import hudson.matrix.MatrixRun;
+import hudson.matrix.MatrixBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Recorder;
 
@@ -47,6 +50,31 @@ public class AllureReportPublisher extends Recorder implements Serializable {
 
     public boolean getAlwaysGenerate() {
         return alwaysGenerate;
+    }
+    
+    public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
+        return new MatrixAggregator(build, launcher, listener) {
+            @Override
+            public boolean endBuild() throws InterruptedException, IOException {
+            	FilePath dst = new FilePath(build.getWorkspace(), AllureReportPublisher.this.resultsPath);
+            	if(dst.exists() && dst.getRemote() != build.getWorkspace().getRemote()){
+    				dst.deleteRecursive();
+    			}
+            	
+            	for(MatrixRun run : build.getExactRuns()) {
+            		FilePath src = new FilePath(run.getWorkspace(), AllureReportPublisher.this.resultsPath);
+            		if(dst.isRemote()){
+	            		FilePath tempMasterDir = new FilePath(build.getRootDir()).child(AllureReportPublisher.this.resultsPath);
+	            		src.copyRecursiveTo(tempMasterDir);
+	            		tempMasterDir.copyRecursiveTo(dst);
+	            		tempMasterDir.deleteRecursive();
+            		} else {
+            			src.copyRecursiveTo(dst);
+            		}
+            	}
+            	return perform(build, launcher, listener);
+            }
+        };
     }
 
     @Override
