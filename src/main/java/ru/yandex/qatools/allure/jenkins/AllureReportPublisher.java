@@ -2,11 +2,15 @@ package ru.yandex.qatools.allure.jenkins;
 
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractProject;
+import hudson.matrix.MatrixAggregatable;
+import hudson.matrix.MatrixAggregator;
+import hudson.matrix.MatrixRun;
+import hudson.matrix.MatrixBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Recorder;
 
@@ -27,7 +31,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * {@link AllureReportPublisherDescriptor}
  */
 @SuppressWarnings("unchecked")
-public class AllureReportPublisher extends Recorder implements Serializable {
+public class AllureReportPublisher extends Recorder implements Serializable, MatrixAggregatable {
 
     private static final long serialVersionUID = 1L;
 
@@ -47,6 +51,40 @@ public class AllureReportPublisher extends Recorder implements Serializable {
 
     public boolean getAlwaysGenerate() {
         return alwaysGenerate;
+    }
+    
+    public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
+    	return new MatrixAggregator(build, launcher, listener) {
+
+    		public static final String ALLURE_MATRIX_TEMP_DIR = "allure_matrix_temp";
+
+    		@Override
+    		public boolean endBuild() throws InterruptedException, IOException {
+    			FilePath dst = new FilePath(build.getWorkspace(), AllureReportPublisher.this.resultsPath);
+    			if(dst.exists() && dst.getRemote() != build.getWorkspace().getRemote()){
+    				dst.deleteRecursive();
+    			}
+
+    			for(MatrixRun run : build.getExactRuns()) {
+    				FilePath src = new FilePath(run.getWorkspace(), AllureReportPublisher.this.resultsPath);
+    				if(dst.isRemote()){
+    					FilePath tempMasterDir = new FilePath(build.getRootDir()).child(ALLURE_MATRIX_TEMP_DIR);
+    					try {
+    						src.copyRecursiveTo(tempMasterDir);
+    						tempMasterDir.copyRecursiveTo(dst);
+    					}
+    					finally {
+    						if (tempMasterDir.exists()) {
+    							tempMasterDir.deleteRecursive();
+    						}
+    					}
+    				} else {
+    					src.copyRecursiveTo(dst);
+    				}
+    			}
+    			return perform(build, launcher, listener);
+    		}
+    	};
     }
 
     @Override
