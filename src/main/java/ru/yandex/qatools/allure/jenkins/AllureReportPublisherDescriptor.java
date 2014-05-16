@@ -12,6 +12,8 @@ import hudson.tasks.Publisher;
 @Extension
 public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publisher> {
 
+    public static final String DEFAULT_REPORT_PATH = "allure-report";
+
     public AllureReportPublisherDescriptor() {
         super(AllureReportPublisher.class);
     }
@@ -27,4 +29,8 @@ public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publish
         return true;
     }
 
+    @SuppressWarnings("unused")
+    public String defaultReportPath() {
+        return DEFAULT_REPORT_PATH;
+    }
 }

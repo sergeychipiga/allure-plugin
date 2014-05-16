@@ -16,7 +16,7 @@ public class AllureReportPlugin extends Plugin {
 
     public static final String ALLURE_URL_PATH = "allure";
 
-    public static final String ALLURE_REPORT_PATH = "allure-reports";
+    public static final String ALLURE_REPORT_PATH = "allure-report";
 
     public static File getBuildReportFolder(AbstractBuild<?, ?> build) {
         return build != null ? new File(build.getRootDir(), ALLURE_REPORT_PATH) : null;

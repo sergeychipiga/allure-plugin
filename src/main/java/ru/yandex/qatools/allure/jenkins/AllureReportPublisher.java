@@ -37,54 +37,60 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
     private final boolean alwaysGenerate;
 
-    private final String resultsPath;
+    private final String resultsMask;
+
+    private final String reportPath;
 
     @DataBoundConstructor
-    public AllureReportPublisher(String resultsPath, boolean alwaysGenerate) {
+    public AllureReportPublisher(String resultsMask, String reportPath, boolean alwaysGenerate) {
         this.alwaysGenerate = alwaysGenerate;
-        this.resultsPath = resultsPath;
+        this.resultsMask = resultsMask;
+        this.reportPath = reportPath;
     }
 
-    public String getResultsPath() {
-        return resultsPath;
+    public String getResultsMask() {
+        return resultsMask;
+    }
+
+    public String getReportPath() {
+        return reportPath;
     }
 
     public boolean getAlwaysGenerate() {
         return alwaysGenerate;
     }
-    
+
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
-    	return new MatrixAggregator(build, launcher, listener) {
+        return new MatrixAggregator(build, launcher, listener) {
 
-    		public static final String ALLURE_MATRIX_TEMP_DIR = "allure_matrix_temp";
+            public static final String ALLURE_MATRIX_TEMP_DIR = "allure_matrix_temp";
 
-    		@Override
-    		public boolean endBuild() throws InterruptedException, IOException {
-    			FilePath dst = new FilePath(build.getWorkspace(), AllureReportPublisher.this.resultsPath);
-    			if(dst.exists() && dst.getRemote() != build.getWorkspace().getRemote()){
-    				dst.deleteRecursive();
-    			}
+            @Override
+            public boolean endBuild() throws InterruptedException, IOException {
+                FilePath dst = new FilePath(build.getWorkspace(), AllureReportPublisher.this.resultsMask);
+                if (dst.exists() && dst.getRemote() != build.getWorkspace().getRemote()) {
+                    dst.deleteRecursive();
+                }
 
-    			for(MatrixRun run : build.getExactRuns()) {
-    				FilePath src = new FilePath(run.getWorkspace(), AllureReportPublisher.this.resultsPath);
-    				if(dst.isRemote()){
-    					FilePath tempMasterDir = new FilePath(build.getRootDir()).child(ALLURE_MATRIX_TEMP_DIR);
-    					try {
-    						src.copyRecursiveTo(tempMasterDir);
-    						tempMasterDir.copyRecursiveTo(dst);
-    					}
-    					finally {
-    						if (tempMasterDir.exists()) {
-    							tempMasterDir.deleteRecursive();
-    						}
-    					}
-    				} else {
-    					src.copyRecursiveTo(dst);
-    				}
-    			}
-    			return perform(build, launcher, listener);
-    		}
-    	};
+                for (MatrixRun run : build.getExactRuns()) {
+                    FilePath src = new FilePath(run.getWorkspace(), AllureReportPublisher.this.resultsMask);
+                    if (dst.isRemote()) {
+                        FilePath tempMasterDir = new FilePath(build.getRootDir()).child(ALLURE_MATRIX_TEMP_DIR);
+                        try {
+                            src.copyRecursiveTo(tempMasterDir);
+                            tempMasterDir.copyRecursiveTo(dst);
+                        } finally {
+                            if (tempMasterDir.exists()) {
+                                tempMasterDir.deleteRecursive();
+                            }
+                        }
+                    } else {
+                        src.copyRecursiveTo(dst);
+                    }
+                }
+                return perform(build, launcher, listener);
+            }
+        };
     }
 
     @Override
@@ -100,25 +106,17 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             return true;
         }
 
-        FilePath allureResults = build.getWorkspace().child(this.resultsPath);
-
-        if (!allureResults.exists()) {
-            logger.println(MessageFormat.format("Allure: tests results directory <{0}> doesn't exists.",
-                    allureResults));
-            build.setResult(Result.FAILURE);
-            return true;
-        }
-
-        logger.println(MessageFormat.format("Allure: analyse tests results path <{0}>", this.resultsPath));
-        FilePath generatedAllureReportData = generateAllureReportData(build, this.resultsPath);
+        logger.println(MessageFormat.format("Allure: analyse tests results path <{0}>", this.resultsMask));
+        FilePath generatedAllureReportData = generateAllureReportData(build, this.resultsMask, this.reportPath);
 
         FilePath allureReport = new FilePath(build.getRootDir()).child(AllureReportPlugin.ALLURE_REPORT_PATH);
         generatedAllureReportData.copyRecursiveTo(allureReport);
-
         logger.println(MessageFormat.format("Allure: copy allure report face to <{0}>", allureReport));
         copyAllureReportFaceTo(allureReport);
 
         build.getActions().add(new AllureBuildAction(build));
+        generatedAllureReportData.deleteContents();
+        generatedAllureReportData.deleteRecursive();
 
         logger.println("Allure: complete");
         return true;
@@ -135,12 +133,13 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     }
 
     public boolean isNeedToBuildReport(AbstractBuild<?, ?> build) {
-        return alwaysGenerate || build.getResult().isBetterThan(Result.FAILURE);
+        return alwaysGenerate || build.getResult().isWorseThan(Result.SUCCESS);
     }
 
-    private FilePath generateAllureReportData(AbstractBuild<?, ?> build, String resultsPath)
+    private FilePath generateAllureReportData(AbstractBuild<?, ?> build, String resultsMask, String reportPath)
             throws IOException, InterruptedException {
-        AllureReportCollector collector = new AllureReportCollector(resultsPath);
+
+        AllureReportCollector collector = new AllureReportCollector(resultsMask, reportPath);
         String generatedAllureReportDataPath = build.getWorkspace().act(collector);
         return new FilePath(build.getWorkspace(), generatedAllureReportDataPath);
     }

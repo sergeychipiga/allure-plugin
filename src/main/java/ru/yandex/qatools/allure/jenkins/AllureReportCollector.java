@@ -13,35 +13,35 @@ import ru.yandex.qatools.allure.data.AllureReportGenerator;
  * {@link FileCallable} that performs actual allure report processing on the remote slave
  *
  * @author pupssman
- *
  */
 public class AllureReportCollector implements FileCallable<String> {
 
-    public static final String ALLURE_REPORT_GENERATION_FOLDER = "target/site/allure-report";
-
     private static final long serialVersionUID = 1L;
 
-    private final String reportFiles;
+    private final String reportPath;
+
+    private final String[] resultsMask;
 
     /**
-     * @param reportFiles ant-like file mask of what to include
+     * @param reportPath relative report path
+     * @param resultsMask ant-like file mask of what to include
      */
-    public AllureReportCollector(String reportFiles) {
-        this.reportFiles = reportFiles;
+    public AllureReportCollector(String resultsMask, String reportPath) {
+        this.resultsMask = resultsMask.split(";");
+        this.reportPath = reportPath;
     }
+
 
     /**
      * @return the relative to <b>f</b> path of generated report directory
      */
     @Override
     public String invoke(final File f, VirtualChannel channel) throws IOException, InterruptedException {
+        File[] allureResultDirectoryList = FileUtils.findFilesByMask(f, resultsMask);
+        File allureOutputDirectory = new File(f, reportPath);
 
-        File allureOutputDirectory = new File(f, ALLURE_REPORT_GENERATION_FOLDER);
-        File allureInputDirectory = new File(f, reportFiles);
-
-        if (!allureInputDirectory.exists() || !allureInputDirectory.isDirectory() || !allureInputDirectory.canRead()) {
-            throw new AllureReportException(String.format("Can't access allure input directory <%s>",
-                    allureInputDirectory.getAbsolutePath()));
+        if (allureResultDirectoryList.length == 0) {
+            throw new AllureReportException(String.format("Can't access allure input folders by <%s>", resultsMask));
         }
 
         if (!(allureOutputDirectory.exists() || allureOutputDirectory.mkdirs())) {
@@ -49,9 +49,9 @@ public class AllureReportCollector implements FileCallable<String> {
                     allureOutputDirectory.getAbsolutePath()));
         }
 
-        AllureReportGenerator allureReportGenerator = new AllureReportGenerator(allureInputDirectory);
+        AllureReportGenerator allureReportGenerator = new AllureReportGenerator(allureResultDirectoryList);
         allureReportGenerator.generate(allureOutputDirectory);
 
-        return ALLURE_REPORT_GENERATION_FOLDER;
+        return reportPath;
     }
 }
