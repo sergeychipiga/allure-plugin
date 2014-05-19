@@ -1,24 +1,17 @@
-## Allure Jenkins Plugin
+# Allure Jenkins Plugin
 
-Плагин, анализирующий allure-отчеты в Jenkins. 
+This plugin allows to automatically generate Allure report and attach it to build during Jenkins job run.
 
-Для использования нужно добавить в джобу Post-build action `Publish Allure Tests Report`, в котором указать директорию с xml-данными для отчетов.
+## Usage
+This plugin adds a new post-build action **Publish Allure Tests Report** which generates Allure report. The only setting for the step is the name of directory with XML files storing input data for Allure. In order to generate those XML files you need to attach Allure adapter to your favorite testing framework. See [wiki](https://github.com/allure-framework/allure-core/wiki) for more details on how to do this. When the build is finished a link to report (**Allure Report**) will appear on its page whereas build page will point to the latest generated Allure report (**Latest Allure Test Report**).
 
-После запуска джобы в билде появится ссылка `Allure Report`, указывающая на отчет для этого билда, а в джобе -- ссылка `Latest Allure Test Report`, указывающая на отчет последнего запуска.
+## Building
 
-Для генерации собственно xml-отчетов в джобе можно использовать адаптеры для тестов -- например, [allure-python](https://github.yandex-team.ru/allure/allure-python) или [allure-java](https://github.yandex-team.ru/allure/allure-java).
+In order to build the plugin you need to have any JDK 1.7+ and [Apache Maven](http://maven.apache.org/). In order to build the plugin simply execute the following command:
+```
+$ mvn clean package
+```
+If you're building Jenkins plugins for the first time you also need to add entries to **settings.xml** file as described on the [page](https://wiki.jenkins-ci.org/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment).
 
-
-How to make & install
-
-Требуется:
-Maven
-Java 1.7*
-
-1. git clone allure-jenkins-plugin
-2. cd ./allure-jenkins-plugin && mvn package
-3. cp allure-jenkins-plugin/target/allure-jenkins-plugin.hpi $JENKINS_HOME/plugins/
-4. touch $JENKINS_HOME/plugins/allure-jenkins-plugin.hpi.pinned
-5. restart jenkins service
-
-* также на хосте с Jenkins.
+## Installing
+After building the plugin you can install the plugin by direct upload (see [instructions](https://wiki.jenkins-ci.org/display/JENKINS/Plugins#Plugins-Usingtheinterface)).
