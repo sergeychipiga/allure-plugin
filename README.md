@@ -7,11 +7,11 @@ This plugin adds a new post-build action **Publish Allure Tests Report** which g
 
 ## Building
 
-In order to build the plugin you need to have any JDK 1.7+ and [Apache Maven](http://maven.apache.org/). In order to build the plugin simply execute the following command:
+To build the plugin you need to have any JDK 1.7+ and [Apache Maven](http://maven.apache.org/). When installed simply execute the following command:
 ```
 $ mvn clean package
 ```
 If you're building Jenkins plugins for the first time you also need to add entries to **settings.xml** file as described on the [page](https://wiki.jenkins-ci.org/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment).
 
 ## Installing
-After building the plugin you can install the plugin by direct upload (see [instructions](https://wiki.jenkins-ci.org/display/JENKINS/Plugins#Plugins-Usingtheinterface)).
+After building the plugin you can install the plugin by direct upload of the file **target/allure-jenkins-plugin.hpi** (see [instructions](https://wiki.jenkins-ci.org/display/JENKINS/Plugins#Plugins-Usingtheinterface)).
