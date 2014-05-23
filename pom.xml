@@ -1,46 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
         <version>1.560</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
+    <properties>
+        <allure.version>1.3.9</allure.version>
+    </properties>
     <groupId>ru.yandex.qatools.allure</groupId>
     <artifactId>allure-jenkins-plugin</artifactId>
-    <version>${allure.version}</version>
+    <version>1.0-SNAPSHOT</version>
+    <url>http://wiki.jenkins-ci.org/display/JENKINS/Allure+Plugin</url>
     <packaging>hpi</packaging>
-
     <name>Allure Jenkins Plugin</name>
-
     <organization>
         <name>Yandex</name>
         <url>http://company.yandex.com</url>
     </organization>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>https://github.com/allure-framework/allure</url>
-        <connection>scm:git@github.com:allure-framework/allure.git</connection>
-        <developerConnection>scm:git:git@github.com:allure-framework/allure.git</developerConnection>
-    </scm>
-
-    <issueManagement>
-        <system>GitHub Issues</system>
-        <url>https://github.com/allure-framework/allure-core/issues</url>
-    </issueManagement>
-
     <developers>
+        <developer>
+            <id>pupssman</id>
+            <name>Ivan Kalinin</name>
+            <email>pupssman@yandex-team.ru</email>
+        </developer>
         <developer>
             <id>eroshenkoam</id>
             <name>Artem Eroshenko</name>
@@ -48,17 +32,38 @@
             <organization>Yandex</organization>
         </developer>
         <developer>
-            <id>pupssman</id>
-            <name>Ivan Kalinin</name>
-            <email>pupssman@yandex-team.ru</email>
-            <organization>Yandex</organization>
+            <id>mavlyutov</id>
+            <name>Marat Mavlyutov</name>
+            <email>mavlyutov@yandex-team.ru</email>
+        </developer>
+        <developer>
+            <id>dchr</id>
+            <name>Denis Chernilevsky</name>
+            <email>dchr@yandex-team.ru</email>
+        </developer>
+        <developer>
+            <id>vania-pooh</id>
+            <name>Ivan Krutov</name>
+            <email>vania-pooh@yandex-team.ru</email>
         </developer>
     </developers>
-
-    <properties>
-        <allure.version>1.3.9</allure.version>
-    </properties>
-
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/jenkinsci/allure-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/allure-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/allure-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/jenkinsci/allure-plugin/issues</url>
+    </issueManagement>
     <build>
         <plugins>
             <plugin>
@@ -101,9 +106,7 @@
                                     <artifactId>allure-report-face</artifactId>
                                     <version>${allure.version}</version>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>
-                                        ${project.build.outputDirectory}/allure-report-face
-                                    </outputDirectory>
+                                    <outputDirectory>${project.build.outputDirectory}/allure-report-face</outputDirectory>
                                     <type>war</type>
                                     <excludes>**\/*.jar,**/META-INF,**/WEB-INF</excludes>
                                 </artifactItem>
@@ -120,15 +123,11 @@
                         <phase>compile</phase>
                         <configuration>
                             <target>
-                                <fileset id="allure-fileset"
-                                         dir="${project.build.outputDirectory}/allure-report-face"/>
-                                <pathconvert targetos="unix" pathsep="${line.separator}" property="allure-file-list"
-                                             refid="allure-fileset">
-                                    <map from="${project.build.outputDirectory}/" to=""/>
+                                <fileset id="allure-fileset" dir="${project.build.outputDirectory}/allure-report-face" />
+                                <pathconvert targetos="unix" pathsep="${line.separator}" property="allure-file-list" refid="allure-fileset">
+                                    <map from="${project.build.outputDirectory}/" to="" />
                                 </pathconvert>
-                                <echo file="${project.build.outputDirectory}/allure-contents.txt">
-                                    ${allure-file-list}
-                                </echo>
+                                <echo file="${project.build.outputDirectory}/allure-contents.txt">${allure-file-list}</echo>
                             </target>
                         </configuration>
                         <goals>
@@ -139,21 +138,20 @@
             </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>com.googlecode.lambdaj</groupId>
             <artifactId>lambdaj</artifactId>
             <version>2.3.3</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>ru.yandex.qatools.allure</groupId>
             <artifactId>allure-report-data</artifactId>
             <version>${allure.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
-
-
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
@@ -168,7 +166,6 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
     </repositories>
-
     <pluginRepositories>
         <pluginRepository>
             <id>repo.jenkins-ci.org</id>
