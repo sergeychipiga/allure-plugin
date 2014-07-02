@@ -5,7 +5,7 @@ import java.io.File;
 import hudson.Plugin;
 import hudson.PluginWrapper;
 import hudson.model.AbstractBuild;
-import hudson.model.Hudson;
+import jenkins.model.Jenkins;
 
 /**
  * User: eroshenkoam
@@ -32,7 +32,7 @@ public class AllureReportPlugin extends Plugin {
     }
 
     public static String getIconFilename() {
-        PluginWrapper wrapper = Hudson.getInstance().getPluginManager().getPlugin(AllureReportPlugin.class);
+        PluginWrapper wrapper = Jenkins.getInstance().getPluginManager().getPlugin(AllureReportPlugin.class);
         return String.format("/plugin/%s/img/icon.png", wrapper.getShortName());
     }
 }

@@ -72,6 +72,39 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         return reportBuildPolicy.name();
     }
 
+    @Override
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+            throws InterruptedException, IOException {
+
+        final PrintStream logger = listener.getLogger();
+
+        logger.println("Allure: started");
+
+        if (!reportBuildPolicy.isNeedToBuildReport(build)) {
+            logger.println(String.format("Allure: project build rejected by policy [%s]",
+                    reportBuildPolicy.getTitle()));
+            return true;
+        }
+
+        logger.println(MessageFormat.format("Allure: analyse tests results path <{0}>", this.resultsMask));
+
+        String allureReportVersion = Strings.isNullOrEmpty(this.reportVersion) ?
+                getDescriptor().defaultReportVersion() : this.reportVersion;
+
+        FilePath generatedAllureReportData = generateAllureReportData(build, this.resultsMask, allureReportVersion);
+
+        FilePath allureReport = new FilePath(build.getRootDir()).child(AllureReportPlugin.REPORT_PATH);
+        generatedAllureReportData.copyRecursiveTo(allureReport);
+        logger.println(MessageFormat.format("Allure: copy allure report face to <{0}>", allureReport));
+
+        build.getActions().add(new AllureBuildAction(build));
+        generatedAllureReportData.deleteContents();
+        generatedAllureReportData.deleteRecursive();
+
+        logger.println("Allure: complete");
+        return true;
+    }
+
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
         return new MatrixAggregator(build, launcher, listener) {
 
@@ -103,39 +136,6 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 return perform(build, launcher, listener);
             }
         };
-    }
-
-    @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-            throws InterruptedException, IOException {
-
-        final PrintStream logger = listener.getLogger();
-
-        logger.println("Allure: started");
-
-        if (!reportBuildPolicy.isNeedToBuildReport(build)) {
-            logger.println(String.format("Allure: project build rejected with policy [%s]",
-                    reportBuildPolicy.getTitle()));
-            return true;
-        }
-
-        logger.println(MessageFormat.format("Allure: analyse tests results path <{0}>", this.resultsMask));
-
-        String allureReportVersion = Strings.isNullOrEmpty(this.reportVersion) ?
-                getDescriptor().defaultReportVersion() : this.reportVersion;
-
-        FilePath generatedAllureReportData = generateAllureReportData(build, this.resultsMask, allureReportVersion);
-
-        FilePath allureReport = new FilePath(build.getRootDir()).child(AllureReportPlugin.REPORT_PATH);
-        generatedAllureReportData.copyRecursiveTo(allureReport);
-        logger.println(MessageFormat.format("Allure: copy allure report face to <{0}>", allureReport));
-
-        build.getActions().add(new AllureBuildAction(build));
-        generatedAllureReportData.deleteContents();
-        generatedAllureReportData.deleteRecursive();
-
-        logger.println("Allure: complete");
-        return true;
     }
 
     @Override
