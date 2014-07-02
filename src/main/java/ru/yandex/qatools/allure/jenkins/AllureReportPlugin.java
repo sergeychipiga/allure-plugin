@@ -14,6 +14,8 @@ import hudson.model.Hudson;
  */
 public class AllureReportPlugin extends Plugin {
 
+    public static final String ALLURE_TITLE = "Allure Report";
+
     public static final String ALLURE_URL_PATH = "allure";
 
     public static final String ALLURE_REPORT_PATH = "allure-report";
@@ -22,13 +24,10 @@ public class AllureReportPlugin extends Plugin {
         return build != null ? new File(build.getRootDir(), ALLURE_REPORT_PATH) : null;
     }
 
-    public static ClassLoader getClassLoader() {
-        return Hudson.getInstance().getPluginManager().getPlugin(AllureReportPlugin.class).classLoader;
+    public static String getAllureTitle() {
+        return ALLURE_TITLE;
     }
 
-    public static InputStream getResource(String resource) {
-        return getClassLoader().getResourceAsStream(resource);
-    }
 
     public static String getIconFilename() {
         PluginWrapper wrapper = Hudson.getInstance().getPluginManager().getPlugin(AllureReportPlugin.class);

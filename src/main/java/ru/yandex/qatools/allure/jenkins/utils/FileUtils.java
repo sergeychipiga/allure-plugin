@@ -1,4 +1,4 @@
-package ru.yandex.qatools.allure.jenkins;
+package ru.yandex.qatools.allure.jenkins.utils;
 
 import org.apache.tools.ant.DirectoryScanner;
 

@@ -28,13 +28,13 @@ public class AllureBuildAction implements Action {
     }
 
     @Override
-    public String getIconFileName() {
-        return AllureReportPlugin.getIconFilename();
+    public String getDisplayName() {
+        return AllureReportPlugin.getAllureTitle();
     }
 
     @Override
-    public String getDisplayName() {
-        return "Allure Report";
+    public String getIconFileName() {
+        return AllureReportPlugin.getIconFilename();
     }
 
     @Override

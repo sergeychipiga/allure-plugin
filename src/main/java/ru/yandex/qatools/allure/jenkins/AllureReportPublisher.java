@@ -1,5 +1,6 @@
 package ru.yandex.qatools.allure.jenkins;
 
+import com.google.common.base.Strings;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;
@@ -8,7 +9,6 @@ import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
-import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepMonitor;
@@ -21,8 +21,8 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
 
 /**
  * User: eroshenkoam
@@ -35,29 +35,41 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
     private static final long serialVersionUID = 1L;
 
-    private final boolean alwaysGenerate;
-
     private final String resultsMask;
 
-    private final String reportPath;
+    private final String reportVersion;
+
+    private final String reportVersionPolicy;
+
+    private final ReportBuildPolicy reportBuildPolicy;
 
     @DataBoundConstructor
-    public AllureReportPublisher(String resultsMask, String reportPath, boolean alwaysGenerate) {
-        this.alwaysGenerate = alwaysGenerate;
+    public AllureReportPublisher(String resultsMask, String reportVersion,
+                                 String reportVersionPolicy, String reportBuildPolicy) {
+        this.reportBuildPolicy = ReportBuildPolicy.valueOf(reportBuildPolicy);
+        this.reportVersionPolicy = reportVersionPolicy;
+        this.reportVersion = reportVersion;
         this.resultsMask = resultsMask;
-        this.reportPath = reportPath;
     }
 
+    @SuppressWarnings("unused")
     public String getResultsMask() {
         return resultsMask;
     }
 
-    public String getReportPath() {
-        return reportPath;
+    @SuppressWarnings("unused")
+    public String getReportVersion() {
+        return reportVersion;
     }
 
-    public boolean getAlwaysGenerate() {
-        return alwaysGenerate;
+    @SuppressWarnings("unused")
+    public String getReportVersionPolicy() {
+        return reportVersionPolicy;
+    }
+
+    @SuppressWarnings("unused")
+    public String getReportBuildPolicy() {
+        return reportBuildPolicy.name();
     }
 
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
@@ -68,7 +80,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             @Override
             public boolean endBuild() throws InterruptedException, IOException {
                 FilePath dst = new FilePath(build.getWorkspace(), AllureReportPublisher.this.resultsMask);
-                if (dst.exists() && dst.getRemote() != build.getWorkspace().getRemote()) {
+                if (dst.exists() && !dst.getRemote().equals(build.getWorkspace().getRemote())) {
                     dst.deleteRecursive();
                 }
 
@@ -101,18 +113,22 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
         logger.println("Allure: started");
 
-        if (!isNeedToBuildReport(build)) {
-            logger.println("Allure: not analyzing allure report for a passed builds.");
+        if (!reportBuildPolicy.isNeedToBuildReport(build)) {
+            logger.println(String.format("Allure: project build rejected with policy [%s]",
+                    reportBuildPolicy.getTitle()));
             return true;
         }
 
         logger.println(MessageFormat.format("Allure: analyse tests results path <{0}>", this.resultsMask));
-        FilePath generatedAllureReportData = generateAllureReportData(build, this.resultsMask, this.reportPath);
+
+        String allureReportVersion = Strings.isNullOrEmpty(this.reportVersion) ?
+                getDescriptor().defaultReportVersion() : this.reportVersion;
+
+        FilePath generatedAllureReportData = generateAllureReportData(build, this.resultsMask, allureReportVersion);
 
         FilePath allureReport = new FilePath(build.getRootDir()).child(AllureReportPlugin.ALLURE_REPORT_PATH);
         generatedAllureReportData.copyRecursiveTo(allureReport);
         logger.println(MessageFormat.format("Allure: copy allure report face to <{0}>", allureReport));
-        copyAllureReportFaceTo(allureReport);
 
         build.getActions().add(new AllureBuildAction(build));
         generatedAllureReportData.deleteContents();
@@ -132,26 +148,16 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         return Arrays.asList(new AllureProjectAction(project));
     }
 
-    public boolean isNeedToBuildReport(AbstractBuild<?, ?> build) {
-        return alwaysGenerate || build.getResult().isWorseThan(Result.SUCCESS);
+    public AllureReportPublisherDescriptor getDescriptor() {
+        return (AllureReportPublisherDescriptor) super.getDescriptor();
     }
 
-    private FilePath generateAllureReportData(AbstractBuild<?, ?> build, String resultsMask, String reportPath)
+    private FilePath generateAllureReportData(AbstractBuild<?, ?> build, String resultsMask, String reportVersion)
             throws IOException, InterruptedException {
 
-        AllureReportCollector collector = new AllureReportCollector(resultsMask, reportPath);
+        AllureReportCollector collector = new AllureReportCollector(resultsMask, reportVersion);
         String generatedAllureReportDataPath = build.getWorkspace().act(collector);
         return new FilePath(build.getWorkspace(), generatedAllureReportDataPath);
-    }
-
-    private void copyAllureReportFaceTo(FilePath allureReport) throws IOException, InterruptedException {
-        // FIXME: we need to put static contents only once and have the symlinks to save space
-        for (Object resource : IOUtils.readLines(AllureReportPlugin.getResource("allure-contents.txt"))) {
-            String resourceName = (String) resource;
-            // FIXME: removing leading path component due to layout, may need a proper fix
-            String destination = resourceName.replaceFirst("^[^\\/]*\\/", "");
-            allureReport.child(destination).copyFrom(AllureReportPlugin.getResource(resourceName));
-        }
     }
 
 }

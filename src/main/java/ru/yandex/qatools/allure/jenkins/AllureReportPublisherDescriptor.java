@@ -4,6 +4,7 @@ import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
+import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
 
 /**
  * User: eroshenkoam
@@ -12,7 +13,9 @@ import hudson.tasks.Publisher;
 @Extension
 public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publisher> {
 
-    public static final String DEFAULT_REPORT_PATH = "allure-report";
+    public static final String DEAFAULT_RESULTS_MASK = "**/allure-results";
+
+    public static final String DEFAULT_REPORT_VERSION = "1.3.9";
 
     public AllureReportPublisherDescriptor() {
         super(AllureReportPublisher.class);
@@ -20,7 +23,7 @@ public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publish
 
     @Override
     public String getDisplayName() {
-        return "Publish Allure Tests Report";
+        return "Allure report processing";
     }
 
     @Override
@@ -30,7 +33,18 @@ public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publish
     }
 
     @SuppressWarnings("unused")
-    public String defaultReportPath() {
-        return DEFAULT_REPORT_PATH;
+    public ReportBuildPolicy[] getReportBuildPolicies() {
+        return ReportBuildPolicy.values();
+    }
+
+
+    @SuppressWarnings("unused")
+    public String defaultResultsMask() {
+        return DEAFAULT_RESULTS_MASK;
+    }
+
+    @SuppressWarnings("unused")
+    public String defaultReportVersion() {
+        return DEFAULT_REPORT_VERSION;
     }
 }

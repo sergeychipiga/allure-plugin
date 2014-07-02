@@ -1,11 +1,28 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <f:entry title="Allure tests results directories" field="resultsMask">
-    <f:textbox />
-  </f:entry>
-  <f:entry title="Allure tests report directory" field="reportPath">
-    <f:textbox default="${descriptor.defaultReportPath()}"/>
-  </f:entry>
-  <f:entry title="Always generate report" field="alwaysGenerate">
-    <f:checkbox />
-  </f:entry>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry title="Allure results mask" field="resultsMask">
+        <f:textbox default="${descriptor.defaultResultsMask()}" style="width: 90%"/>
+    </f:entry>
+    <f:entry title="Allure report version" field="reportVersion">
+        <table style="width: 100%">
+            <f:radioBlock name="reportVersionPolicy" title="Default: ${descriptor.defaultReportVersion()}"
+                          value="DEFAULT" checked="${instance.getReportVersionPolicy().equals('DEFAULT')}"
+                          inline="true">
+            </f:radioBlock>
+
+            <f:radioBlock name="reportVersionPolicy" title="Custom" inline="true"
+                          value="CUSTOM" checked="${instance.getReportVersionPolicy().equals('CUSTOM')}">
+                <f:entry>
+                    <f:textbox name="reportVersion" value="${instance.getReportVersion()}" style="width:30%"/>
+                </f:entry>
+            </f:radioBlock>
+        </table>
+    </f:entry>
+    <f:entry title="Allure report build policy">
+        <j:forEach var='reportBuildPolicy' items='${descriptor.getReportBuildPolicies()}'>
+            <f:radio title="${reportBuildPolicy.getTitle()}" name="reportBuildPolicy"
+                     value="${reportBuildPolicy.getValue()}"
+                     checked="${instance.getReportBuildPolicy().equals(reportBuildPolicy.getValue())}"/><br/>
+        </j:forEach>
+    </f:entry>
 </j:jelly>
