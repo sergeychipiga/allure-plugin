@@ -6,7 +6,6 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.DirectoryBrowserSupport;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -29,7 +28,7 @@ public class AllureBuildAction implements Action {
 
     @Override
     public String getDisplayName() {
-        return AllureReportPlugin.getAllureTitle();
+        return AllureReportPlugin.getTitle();
     }
 
     @Override
@@ -39,7 +38,7 @@ public class AllureBuildAction implements Action {
 
     @Override
     public String getUrlName() {
-        return AllureReportPlugin.ALLURE_URL_PATH;
+        return AllureReportPlugin.URL_PATH;
     }
 
     @SuppressWarnings("unused")

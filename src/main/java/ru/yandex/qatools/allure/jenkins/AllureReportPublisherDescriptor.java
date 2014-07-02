@@ -13,10 +13,6 @@ import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
 @Extension
 public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publisher> {
 
-    public static final String DEAFAULT_RESULTS_MASK = "**/allure-results";
-
-    public static final String DEFAULT_REPORT_VERSION = "1.3.9";
-
     public AllureReportPublisherDescriptor() {
         super(AllureReportPublisher.class);
     }
@@ -40,11 +36,11 @@ public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publish
 
     @SuppressWarnings("unused")
     public String defaultResultsMask() {
-        return DEAFAULT_RESULTS_MASK;
+        return AllureReportPlugin.DEFAULT_RESULTS_MASK;
     }
 
     @SuppressWarnings("unused")
     public String defaultReportVersion() {
-        return DEFAULT_REPORT_VERSION;
+        return AllureReportPlugin.DEFAULT_REPORT_VERSION;
     }
 }

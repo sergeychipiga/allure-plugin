@@ -22,7 +22,7 @@ public class AllureProjectAction implements ProminentProjectAction, StaplerProxy
 
     @Override
     public String getDisplayName() {
-        return AllureReportPlugin.getAllureTitle();
+        return AllureReportPlugin.getTitle();
     }
 
     @Override
@@ -32,7 +32,7 @@ public class AllureProjectAction implements ProminentProjectAction, StaplerProxy
 
     @Override
     public String getUrlName() {
-        return AllureReportPlugin.ALLURE_URL_PATH;
+        return AllureReportPlugin.URL_PATH;
     }
 
     @Override
