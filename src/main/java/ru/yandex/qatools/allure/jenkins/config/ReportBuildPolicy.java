@@ -9,14 +9,14 @@ import hudson.model.Run;
  */
 public enum ReportBuildPolicy {
 
-    ALWAYS("For all build", new ReportBuildPolicyDecision() {
+    ALWAYS("For all builds", new ReportBuildPolicyDecision() {
         @Override
         public boolean isNeedToBuildReport(Run run) {
             return true;
         }
     }),
 
-    UNSTABLE("For all unstable build", new ReportBuildPolicyDecision() {
+    UNSTABLE("For all unstable builds", new ReportBuildPolicyDecision() {
         @Override
         public boolean isNeedToBuildReport(Run run) {
             return run.getResult().equals(Result.UNSTABLE);

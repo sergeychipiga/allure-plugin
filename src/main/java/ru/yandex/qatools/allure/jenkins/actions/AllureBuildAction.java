@@ -1,4 +1,4 @@
-package ru.yandex.qatools.allure.jenkins;
+package ru.yandex.qatools.allure.jenkins.actions;
 
 import hudson.FilePath;
 import hudson.model.Action;
@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import ru.yandex.qatools.allure.jenkins.AllureReportPlugin;
 
 /**
  * {@link Action} that server allure report from archive directory on master of a given build.
@@ -45,7 +46,7 @@ public class AllureBuildAction implements Action {
     public DirectoryBrowserSupport doDynamic(StaplerRequest req, StaplerResponse rsp)
             throws IOException, ServletException, InterruptedException {
         AbstractProject<?, ?> project = build.getProject();
-        FilePath systemDirectory = new FilePath(AllureReportPlugin.getBuildReportFolder(build));
+        FilePath systemDirectory = new FilePath(AllureReportPlugin.getReportBuildDirectory(build));
         return new DirectoryBrowserSupport(this, systemDirectory, project.getDisplayName(), null, false);
     }
 
