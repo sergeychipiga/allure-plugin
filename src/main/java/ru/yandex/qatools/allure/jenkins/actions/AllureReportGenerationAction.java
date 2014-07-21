@@ -38,7 +38,7 @@ public class AllureReportGenerationAction implements FilePath.FileCallable<FileP
 
         try {
             DependencyResolver dependencyResolver = newDependencyResolver(repositoriesDirectory,
-                    AetherObjectFactory.MAVEN_CENTRAL_URL, "https://oss.sonatype.org/content/repositories/releases/");
+                    AetherObjectFactory.MAVEN_CENTRAL_URL, AetherObjectFactory.SONATYPE_RELEASES_URL);
             AllureReportBuilder allureReportBuilder = new AllureReportBuilder(reportVersion, reportDirectory,
                     dependencyResolver);
             allureReportBuilder.processResults(resultsDirectory);
