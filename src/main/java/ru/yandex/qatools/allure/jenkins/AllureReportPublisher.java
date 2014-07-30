@@ -105,6 +105,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
         generateReport(build, allureFilePath, logger);
         publishReport(build, logger);
+        delete(allureFilePath, logger);
         logger.println("completed");
 
         return true;
@@ -146,8 +147,9 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
                 generateReport(build, allureFilePath, logger);
                 publishReport(build, logger);
-                logger.println("completed");
+                delete(allureFilePath, logger);
 
+                logger.println("completed");
                 return true;
             }
         };
@@ -161,8 +163,6 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         String reportVersion = getConfig().getReportVersionPolicy().equals(ReportVersionPolicy.CUSTOM) ?
                 getConfig().getReportVersionCustom() : getDescriptor().getReportVersionDefault();
         allureFilePath.act(new AllureReportGenerationAction(reportVersion)).copyRecursiveTo(reportFilePath);
-        allureFilePath.deleteContents();
-        allureFilePath.deleteRecursive();
     }
 
     private void publishReport(AbstractBuild<?, ?> build, PrintStreamWrapper logger) {
@@ -170,5 +170,14 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         build.getActions().add(new AllureBuildAction(build));
     }
 
+    private void delete(FilePath filePath, PrintStreamWrapper logger) {
+        try {
+            filePath.deleteContents();
+            filePath.deleteRecursive();
+        } catch (IOException | InterruptedException e) {
+            logger.println("Can't delete directory [%s]", filePath);
+            e.printStackTrace(logger.getPrintStream());
+        }
+    }
 
 }

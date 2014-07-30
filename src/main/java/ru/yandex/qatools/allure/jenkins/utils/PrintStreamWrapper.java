@@ -19,4 +19,8 @@ public class PrintStreamWrapper {
     public void println(String message, Object... objects) {
         this.printStream.println(PREFIX.concat(String.format(message, objects)));
     }
+
+    public PrintStream getPrintStream () {
+        return printStream;
+    }
 }
