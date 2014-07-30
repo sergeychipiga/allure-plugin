@@ -39,41 +39,21 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
     private static final long serialVersionUID = 1L;
 
-    private final String resultsPattern;
+    private final AllureReportConfig config;
 
-    private final String reportVersionCustom;
+    @Deprecated
+    private String resultsMask;
 
-    private final ReportBuildPolicy reportBuildPolicy;
-
-    private final ReportVersionPolicy reportVersionPolicy;
+    @Deprecated
+    private boolean alwaysGenerate;
 
     @DataBoundConstructor
-    public AllureReportPublisher(String resultsPattern, String reportVersionCustom,
-                                 String reportVersionPolicy, String reportBuildPolicy) {
-        this.reportVersionPolicy = ReportVersionPolicy.valueOf(reportVersionPolicy);
-        this.reportBuildPolicy = ReportBuildPolicy.valueOf(reportBuildPolicy);
-        this.reportVersionCustom = reportVersionCustom;
-        this.resultsPattern = resultsPattern;
+    public AllureReportPublisher(AllureReportConfig config) {
+        this.config = config;
     }
 
-    @SuppressWarnings("unused")
-    public String getResultsPattern() {
-        return resultsPattern;
-    }
-
-    @SuppressWarnings("unused")
-    public String getReportVersionCustom() {
-        return reportVersionCustom;
-    }
-
-    @SuppressWarnings("unused")
-    public String getReportVersionPolicy() {
-        return reportVersionPolicy.name();
-    }
-
-    @SuppressWarnings("unused")
-    public String getReportBuildPolicy() {
-        return reportBuildPolicy.name();
+    public AllureReportConfig getConfig() {
+        return config == null ? AllureReportConfig.newInstance(resultsMask, alwaysGenerate) : config;
     }
 
     @Override
@@ -98,11 +78,13 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         FilePath allureFilePath = build.getWorkspace().createTempDir("allure", null);
 
         logger.println("started");
+        ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
         if (!reportBuildPolicy.isNeedToBuildReport(build)) {
             logger.println("report generation reject by policy [%s]", reportBuildPolicy.getTitle());
             return true;
         }
 
+        String resultsPattern = getConfig().getResultsPattern();
         logger.println("find directories by mask [%s]", resultsPattern);
         List<FilePath> resultsFilePaths = build.getWorkspace().act(findDirectoriesByGlob(resultsPattern));
         logger.println("found allure result directories %s", Arrays.toString(resultsFilePaths.toArray()));
@@ -138,6 +120,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
 
                 logger.println("started");
+                ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
                 if (!reportBuildPolicy.isNeedToBuildReport(build)) {
                     logger.println("project build reject by policy [%s]", reportBuildPolicy.getTitle());
                     return true;
@@ -148,6 +131,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
                 logger.println("copy matrix builds results in directory [%s]", tmpResultsDirectory);
 
+                String resultsPattern = getConfig().getResultsPattern();
                 for (MatrixRun run : build.getExactRuns()) {
                     List<FilePath> resultsDirectories = run.getWorkspace().act(findDirectoriesByGlob(resultsPattern));
                     for (FilePath resultsDirectory : resultsDirectories) {
@@ -174,8 +158,8 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
         logger.println("generate report from directory [%s]", allureFilePath);
         FilePath reportFilePath = new FilePath(getReportBuildDirectory(build));
-        String reportVersion = reportVersionPolicy.equals(ReportVersionPolicy.CUSTOM) ?
-                getReportVersionCustom() : getDescriptor().getReportVersionDefault();
+        String reportVersion = getConfig().getReportVersionPolicy().equals(ReportVersionPolicy.CUSTOM) ?
+                getConfig().getReportVersionCustom() : getDescriptor().getReportVersionDefault();
         allureFilePath.act(new AllureReportGenerationAction(reportVersion)).copyRecursiveTo(reportFilePath);
         allureFilePath.deleteContents();
         allureFilePath.deleteRecursive();
