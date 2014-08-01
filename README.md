@@ -3,6 +3,11 @@ This plugin allows to automatically generate [Allure report](http://allure.qatoo
 
 ![image](https://raw.github.com/allure-framework/allure-core/master/allure-dashboard.png)
 
+## Installation
+ * Open "Manage Jenkins" > "Manage Plugins" > "Available"
+ * Find the "Allure Report" plugin
+ * Install plugin
+
 ## Configuration
  * Open a job configuration page
  * Add the "Allure Report Generation" post build action
