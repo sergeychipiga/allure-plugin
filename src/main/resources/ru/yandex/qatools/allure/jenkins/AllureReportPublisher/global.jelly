@@ -3,10 +3,10 @@
 
     <f:section title="Allure Settings">
 
-        <f:entry title="Default results pattern" field="resultsPatternDefault">
+        <f:entry title="Default Results Directories" field="resultsPatternDefault">
             <f:textbox default="${descriptor.getResultsPatternDefault()}" style="width: 90%"/>
         </f:entry>
-        <f:entry title="Default report version" field="reportVersionDefault">
+        <f:entry title="Default Report Version" field="reportVersionDefault">
             <f:textbox default="${descriptor.getReportVersionDefault()}" style="width: 90%"/>
         </f:entry>
     </f:section>

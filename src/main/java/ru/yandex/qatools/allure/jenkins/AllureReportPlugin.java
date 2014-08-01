@@ -15,7 +15,7 @@ public class AllureReportPlugin extends Plugin {
 
     public static final String TITLE = "Allure Report";
 
-    public static final String DESCRIPTION = "Allure report processing";
+    public static final String DESCRIPTION = "Allure Report Generation";
 
     public static final String URL_PATH = "allure";
 
