@@ -1,5 +1,5 @@
 # Allure Jenkins Plugin
-This plugin allows to automatically generate Allure report and attach it to build during Jenkins job run.
+This plugin allows to automatically generate [Allure report](http://allure.qatools.ru) and attach it to build during Jenkins job run.
 
 ![image](https://raw.github.com/allure-framework/allure-core/master/allure-dashboard.png)
 
@@ -16,8 +16,8 @@ When finished a link to Allure report will appear on the build page:
 ![configuration](https://raw.githubusercontent.com/allure-framework/allure-jenkins-plugin/master/img/allure-report.png)
 
 ## Default Settings
- * Open Jenkins global configuration
- * Find "Allure Settings" configuration block
+ * Open the Jenkins global configuration
+ * Find the "Allure Settings" configuration block
  
 ![configuration](https://raw.githubusercontent.com/allure-framework/allure-jenkins-plugin/master/img/allure-settings.png)
 
