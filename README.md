@@ -17,7 +17,8 @@ When finished a link to Allure report will appear on the build page:
 
 ## Default Settings
  * Open Jenkins global configuration
- * Find 
+ * Find "Allure Settings" configuration block
+ 
 ![configuration](https://raw.githubusercontent.com/allure-framework/allure-jenkins-plugin/master/img/allure-settings.png)
 
 
