@@ -10,7 +10,7 @@ This plugin allows to automatically generate [Allure report](http://allure.qatoo
 ![configuration](https://raw.githubusercontent.com/allure-framework/allure-jenkins-plugin/master/img/allure-configuration.png)
 
 ## Usage
-When finished a link to Allure report will appear on the build page:
+When build is finished a link to the Allure report will appear on the build page:
 
 ![configuration](https://raw.githubusercontent.com/allure-framework/allure-jenkins-plugin/master/img/allure-sidebar.png)
 ![configuration](https://raw.githubusercontent.com/allure-framework/allure-jenkins-plugin/master/img/allure-report.png)
