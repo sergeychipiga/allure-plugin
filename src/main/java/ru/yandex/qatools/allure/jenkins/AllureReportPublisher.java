@@ -56,6 +56,16 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         return config == null ? AllureReportConfig.newInstance(resultsMask, alwaysGenerate) : config;
     }
 
+    @Deprecated
+    public String getResultsMask () {
+        return resultsMask;
+    }
+
+    @Deprecated
+    public boolean ggetAlwaysGenerate() {
+        return alwaysGenerate;
+    }
+
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.STEP;
