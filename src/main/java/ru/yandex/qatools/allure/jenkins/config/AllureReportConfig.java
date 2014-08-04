@@ -1,8 +1,6 @@
-package ru.yandex.qatools.allure.jenkins;
+package ru.yandex.qatools.allure.jenkins.config;
 
 import org.kohsuke.stapler.DataBoundConstructor;
-import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
-import ru.yandex.qatools.allure.jenkins.config.ReportVersionPolicy;
 
 /**
  * eroshenkoam

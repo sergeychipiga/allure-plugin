@@ -1,4 +1,4 @@
-package ru.yandex.qatools.allure.jenkins.actions;
+package ru.yandex.qatools.allure.jenkins.utils;
 
 import hudson.FilePath;
 import hudson.remoting.VirtualChannel;
@@ -15,7 +15,7 @@ import static ru.yandex.qatools.allure.report.utils.AetherObjectFactory.newDepen
  * eroshenkoam
  * 7/16/14
  */
-public class AllureReportGenerationAction implements FilePath.FileCallable<FilePath> {
+public class ReportGenerator implements FilePath.FileCallable<FilePath> {
 
     public static final String REPOSITORIES_PATH = "repositories";
 
@@ -25,7 +25,7 @@ public class AllureReportGenerationAction implements FilePath.FileCallable<FileP
 
     private String reportVersion;
 
-    public AllureReportGenerationAction(String reportVersion) {
+    public ReportGenerator(String reportVersion) {
         this.reportVersion = reportVersion;
     }
 

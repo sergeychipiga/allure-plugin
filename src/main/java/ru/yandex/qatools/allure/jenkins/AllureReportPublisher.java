@@ -19,8 +19,9 @@ import java.util.List;
 import org.kohsuke.stapler.DataBoundConstructor;
 import ru.yandex.qatools.allure.jenkins.actions.AllureBuildAction;
 import ru.yandex.qatools.allure.jenkins.actions.AllureProjectAction;
-import ru.yandex.qatools.allure.jenkins.actions.AllureReportGenerationAction;
-import ru.yandex.qatools.allure.jenkins.actions.StorePropertiesAction;
+import ru.yandex.qatools.allure.jenkins.config.AllureReportConfig;
+import ru.yandex.qatools.allure.jenkins.utils.PropertiesSaver;
+import ru.yandex.qatools.allure.jenkins.utils.ReportGenerator;
 import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
 import ru.yandex.qatools.allure.jenkins.config.ReportVersionPolicy;
 import ru.yandex.qatools.allure.jenkins.utils.PrintStreamWrapper;
@@ -105,13 +106,13 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             return false;
         }
 
-        FilePath resultsFilePath = allureFilePath.child(AllureReportGenerationAction.RESULTS_PATH);
+        FilePath resultsFilePath = allureFilePath.child(ReportGenerator.RESULTS_PATH);
         logger.println("copy founded directories in directory [%s]", resultsFilePath);
         for (FilePath filePath : resultsFilePaths) {
             filePath.copyRecursiveTo(resultsFilePath);
         }
         resultsFilePath.createTempFile("allure", "-environment.properties").
-                act(new StorePropertiesAction(build.getBuildVariables(), "Build Properties"));
+                act(new PropertiesSaver(build.getBuildVariables(), "Build Properties"));
 
         generateReport(build, allureFilePath, logger);
         publishReport(build, logger);
@@ -138,7 +139,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 }
 
                 FilePath allureFilePath = build.getRootBuild().getWorkspace().createTempDir("allure", null);
-                FilePath tmpResultsDirectory = allureFilePath.child(AllureReportGenerationAction.RESULTS_PATH);
+                FilePath tmpResultsDirectory = allureFilePath.child(ReportGenerator.RESULTS_PATH);
 
                 logger.println("copy matrix builds results in directory [%s]", tmpResultsDirectory);
 
@@ -172,7 +173,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         FilePath reportFilePath = new FilePath(getReportBuildDirectory(build));
         String reportVersion = getConfig().getReportVersionPolicy().equals(ReportVersionPolicy.CUSTOM) ?
                 getConfig().getReportVersionCustom() : getDescriptor().getReportVersionDefault();
-        allureFilePath.act(new AllureReportGenerationAction(reportVersion)).copyRecursiveTo(reportFilePath);
+        allureFilePath.act(new ReportGenerator(reportVersion)).copyRecursiveTo(reportFilePath);
     }
 
     private void publishReport(AbstractBuild<?, ?> build, PrintStreamWrapper logger) {
