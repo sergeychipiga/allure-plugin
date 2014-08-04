@@ -19,7 +19,7 @@ public class AllureReportPlugin extends Plugin {
 
     public static final String URL_PATH = "allure";
 
-    public static final String REPORT_PATH = "allure";
+    public static final String REPORT_PATH = "allure-report";
 
     public static final String DEFAULT_RESULTS_PATTERN = "**/allure-results";
 
