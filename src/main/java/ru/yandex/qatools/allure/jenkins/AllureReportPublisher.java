@@ -62,7 +62,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     }
 
     @Deprecated
-    public boolean ggetAlwaysGenerate() {
+    public boolean getAlwaysGenerate() {
         return alwaysGenerate;
     }
 
