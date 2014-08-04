@@ -21,12 +21,23 @@ public class AllureReportPlugin extends Plugin {
 
     public static final String REPORT_PATH = "allure-report";
 
+    /**
+     * @deprecated since 1.0
+    */
+    @Deprecated
+    public static final String REPORT_PATH_OLD = "allure-reports";
+
     public static final String DEFAULT_RESULTS_PATTERN = "**/allure-results";
 
     public static final String DEFAULT_REPORT_VERSION = "1.3.9";
 
     public static File getReportBuildDirectory(AbstractBuild<?, ?> build) {
-        return build != null ? new File(build.getRootDir(), REPORT_PATH) : null;
+        if (build != null) {
+            File oldReportPath = new File(build.getRootDir(), REPORT_PATH_OLD);
+            return oldReportPath.exists() ? oldReportPath : new File(build.getRootDir(), REPORT_PATH);
+        } else {
+            return null;
+        }
     }
 
     public static String getTitle() {

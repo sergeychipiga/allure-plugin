@@ -1,7 +1,9 @@
 package ru.yandex.qatools.allure.jenkins;
 
+import com.google.common.base.Strings;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.RestrictedSince;
 import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
 import hudson.matrix.MatrixRun;
@@ -42,8 +44,17 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
     private final AllureReportConfig config;
 
+    /**
+     * @deprecated since 1.3.1
+     */
     @Deprecated
     private String resultsMask;
+
+    /**
+     * @deprecated since 1.1
+     */
+    @Deprecated
+    private String resultsPath;
 
     @Deprecated
     private boolean alwaysGenerate;
@@ -54,11 +65,21 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     }
 
     public AllureReportConfig getConfig() {
-        return config == null ? AllureReportConfig.newInstance(resultsMask, alwaysGenerate) : config;
+        if (config != null) {
+            return config;
+        } else {
+            String resultPattern = Strings.isNullOrEmpty(resultsPath) ? resultsMask : resultsPath;
+            return AllureReportConfig.newInstance(resultPattern, alwaysGenerate);
+        }
     }
 
     @Deprecated
-    public String getResultsMask () {
+    public String getResultsPath() {
+        return resultsPath;
+    }
+
+    @Deprecated
+    public String getResultsMask() {
         return resultsMask;
     }
 
