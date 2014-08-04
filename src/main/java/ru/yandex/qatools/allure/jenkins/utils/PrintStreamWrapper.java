@@ -1,5 +1,7 @@
 package ru.yandex.qatools.allure.jenkins.utils;
 
+import ru.yandex.qatools.allure.jenkins.AllureReportPlugin;
+
 import java.io.PrintStream;
 
 /**
@@ -8,7 +10,7 @@ import java.io.PrintStream;
  */
 public class PrintStreamWrapper {
 
-    public static final String PREFIX = "Allure report processing: ";
+    public static final String PREFIX = AllureReportPlugin.DESCRIPTION;
 
     private PrintStream printStream;
 
@@ -17,10 +19,10 @@ public class PrintStreamWrapper {
     }
 
     public void println(String message, Object... objects) {
-        this.printStream.println(PREFIX.concat(String.format(message, objects)));
+        this.printStream.println(PREFIX.concat(": ").concat(String.format(message, objects)));
     }
 
-    public PrintStream getPrintStream () {
+    public PrintStream getPrintStream() {
         return printStream;
     }
 }
