@@ -5,6 +5,8 @@ import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
+import hudson.util.FormValidation;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
 
@@ -56,6 +58,12 @@ public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publish
 
     public void setReportVersionDefault(String reportVersionDefault) {
         this.reportVersionDefault = reportVersionDefault;
+    }
+
+    @SuppressWarnings("unused")
+    public FormValidation doResultsPattern(@QueryParameter String resultsPattern) {
+        return Strings.isNullOrEmpty(resultsPattern) ?
+                FormValidation.error("Results pattern can't be empty") : FormValidation.ok();
     }
 
     @Override
