@@ -1,10 +1,7 @@
-package ru.yandex.qatools.allure.jenkins.actions;
+package ru.yandex.qatools.allure.jenkins;
 
 import hudson.FilePath;
-import hudson.model.Action;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.DirectoryBrowserSupport;
+import hudson.model.*;
 
 import java.io.IOException;
 
@@ -19,7 +16,7 @@ import ru.yandex.qatools.allure.jenkins.AllureReportPlugin;
  *
  * @author pupssman
  */
-public class AllureBuildAction implements Action {
+public class AllureBuildAction implements BuildBadgeAction {
 
     private final AbstractBuild<?, ?> build;
 

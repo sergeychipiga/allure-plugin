@@ -1,4 +1,4 @@
-package ru.yandex.qatools.allure.jenkins.actions;
+package ru.yandex.qatools.allure.jenkins;
 
 import org.kohsuke.stapler.StaplerProxy;
 
@@ -6,7 +6,6 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.ProminentProjectAction;
-import ru.yandex.qatools.allure.jenkins.AllureReportPlugin;
 
 
 /**

@@ -3,7 +3,6 @@ package ru.yandex.qatools.allure.jenkins;
 import com.google.common.base.Strings;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.RestrictedSince;
 import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
 import hudson.matrix.MatrixRun;
@@ -19,8 +18,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.kohsuke.stapler.DataBoundConstructor;
-import ru.yandex.qatools.allure.jenkins.actions.AllureBuildAction;
-import ru.yandex.qatools.allure.jenkins.actions.AllureProjectAction;
 import ru.yandex.qatools.allure.jenkins.config.AllureReportConfig;
 import ru.yandex.qatools.allure.jenkins.utils.PropertiesSaver;
 import ru.yandex.qatools.allure.jenkins.utils.ReportGenerator;
