@@ -141,7 +141,6 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     }
 
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
-
         return new MatrixAggregator(build, launcher, listener) {
 
             @Override
