@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
         <version>1.560</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <properties>
-        <allure.version>1.3.9</allure.version>
-    </properties>
+
     <groupId>ru.yandex.qatools.allure</groupId>
     <artifactId>allure-jenkins-plugin</artifactId>
-    <version>1.4-SNAPSHOT</version>
-    <url>http://wiki.jenkins-ci.org/display/JENKINS/Allure+Plugin</url>
-    <packaging>hpi</packaging>
     <name>Allure Jenkins Plugin</name>
+    <packaging>hpi</packaging>
+
+    <version>2.0-SNAPSHOT</version>
+
+    <url>http://wiki.jenkins-ci.org/display/JENKINS/Allure+Plugin</url>
+
     <organization>
         <name>Yandex</name>
         <url>http://company.yandex.com</url>
     </organization>
+
     <developers>
         <developer>
             <id>pupssman</id>
@@ -47,6 +51,7 @@
             <email>vania-pooh@yandex-team.ru</email>
         </developer>
     </developers>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -54,16 +59,19 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
     <scm>
         <connection>scm:git:https://github.com/jenkinsci/allure-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/allure-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/allure-plugin</url>
         <tag>HEAD</tag>
     </scm>
+
     <issueManagement>
         <system>GitHub Issues</system>
         <url>https://github.com/jenkinsci/allure-plugin/issues</url>
     </issueManagement>
+
     <build>
         <plugins>
             <plugin>
@@ -81,56 +89,9 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.8</version>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>ru.yandex.qatools.allure</groupId>
-                                    <artifactId>allure-report-face</artifactId>
-                                    <version>${allure.version}</version>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.outputDirectory}/allure-report-face</outputDirectory>
-                                    <type>war</type>
-                                    <excludes>**\/*.jar,**/META-INF,**/WEB-INF</excludes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <configuration>
-                            <target>
-                                <fileset id="allure-fileset" dir="${project.build.outputDirectory}/allure-report-face" />
-                                <pathconvert targetos="unix" pathsep="${line.separator}" property="allure-file-list" refid="allure-fileset">
-                                    <map from="${project.build.outputDirectory}/" to="" />
-                                </pathconvert>
-                                <echo file="${project.build.outputDirectory}/allure-contents.txt">${allure-file-list}</echo>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
     <dependencies>
         <dependency>
             <groupId>com.googlecode.lambdaj</groupId>
@@ -140,29 +101,15 @@
         </dependency>
         <dependency>
             <groupId>ru.yandex.qatools.allure</groupId>
-            <artifactId>allure-report-data</artifactId>
-            <version>${allure.version}</version>
-            <optional>true</optional>
+            <artifactId>allure-report-builder</artifactId>
+            <version>2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
-        </repository>
-        <repository>
-            <id>sonatype</id>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
-        </repository>
-        <repository>
-            <id>sonatype-snapshot</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
+
 </project>

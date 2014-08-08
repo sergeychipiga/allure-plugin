@@ -1,9 +1,14 @@
 package ru.yandex.qatools.allure.jenkins;
 
+import com.google.common.base.Strings;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
+import hudson.util.FormValidation;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
 
 /**
  * User: eroshenkoam
@@ -12,7 +17,9 @@ import hudson.tasks.Publisher;
 @Extension
 public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publisher> {
 
-    public static final String DEFAULT_REPORT_PATH = "allure-report";
+    private String reportVersionDefault = AllureReportPlugin.DEFAULT_REPORT_VERSION;
+
+    private String resultsPatternDefault = AllureReportPlugin.DEFAULT_RESULTS_PATTERN;
 
     public AllureReportPublisherDescriptor() {
         super(AllureReportPublisher.class);
@@ -20,7 +27,7 @@ public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publish
 
     @Override
     public String getDisplayName() {
-        return "Publish Allure Tests Report";
+        return AllureReportPlugin.DESCRIPTION;
     }
 
     @Override
@@ -30,7 +37,46 @@ public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publish
     }
 
     @SuppressWarnings("unused")
-    public String defaultReportPath() {
-        return DEFAULT_REPORT_PATH;
+    public ReportBuildPolicy[] getReportBuildPolicies() {
+        return ReportBuildPolicy.values();
+    }
+
+
+    @SuppressWarnings("unused")
+    public String getResultsPatternDefault() {
+        return resultsPatternDefault;
+    }
+
+    public void setResultsPatternDefault(String reportGlobDefault) {
+        this.resultsPatternDefault = reportGlobDefault;
+    }
+
+    @SuppressWarnings("unused")
+    public String getReportVersionDefault() {
+        return reportVersionDefault;
+    }
+
+    public void setReportVersionDefault(String reportVersionDefault) {
+        this.reportVersionDefault = reportVersionDefault;
+    }
+
+    @SuppressWarnings("unused")
+    public FormValidation doResultsPattern(@QueryParameter String resultsPattern) {
+        return Strings.isNullOrEmpty(resultsPattern) ?
+                FormValidation.error("Results pattern can't be empty") : FormValidation.ok();
+    }
+
+    @Override
+    public boolean configure(StaplerRequest req, net.sf.json.JSONObject json) throws FormException {
+        String resultsGlobDefaultValue = json.getString("resultsPatternDefault");
+        if (!Strings.isNullOrEmpty(resultsGlobDefaultValue)) {
+            setResultsPatternDefault(resultsGlobDefaultValue);
+        }
+        String reportVersionDefaultValue = json.getString("reportVersionDefault");
+        if (!Strings.isNullOrEmpty(reportVersionDefaultValue)) {
+            setReportVersionDefault(reportVersionDefaultValue);
+        }
+        save();
+        return true;
     }
 }

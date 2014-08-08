@@ -1,12 +1,11 @@
 package ru.yandex.qatools.allure.jenkins;
 
 import java.io.File;
-import java.io.InputStream;
 
 import hudson.Plugin;
 import hudson.PluginWrapper;
 import hudson.model.AbstractBuild;
-import hudson.model.Hudson;
+import jenkins.model.Jenkins;
 
 /**
  * User: eroshenkoam
@@ -14,24 +13,41 @@ import hudson.model.Hudson;
  */
 public class AllureReportPlugin extends Plugin {
 
-    public static final String ALLURE_URL_PATH = "allure";
+    public static final String TITLE = "Allure Report";
 
-    public static final String ALLURE_REPORT_PATH = "allure-report";
+    public static final String DESCRIPTION = "Allure Report Generation";
 
-    public static File getBuildReportFolder(AbstractBuild<?, ?> build) {
-        return build != null ? new File(build.getRootDir(), ALLURE_REPORT_PATH) : null;
+    public static final String URL_PATH = "allure";
+
+    public static final String REPORT_PATH = "allure-report";
+
+    /**
+     * @deprecated since 1.0
+    */
+    @Deprecated
+    public static final String REPORT_PATH_OLD = "allure-reports";
+
+    public static final String DEFAULT_RESULTS_PATTERN = "**/allure-results";
+
+    public static final String DEFAULT_REPORT_VERSION = "1.3.9";
+
+    public static File getReportBuildDirectory(AbstractBuild<?, ?> build) {
+        if (build != null) {
+            File oldReportPath = new File(build.getRootDir(), REPORT_PATH_OLD);
+            return oldReportPath.exists() ? oldReportPath : new File(build.getRootDir(), REPORT_PATH);
+        } else {
+            return null;
+        }
     }
 
-    public static ClassLoader getClassLoader() {
-        return Hudson.getInstance().getPluginManager().getPlugin(AllureReportPlugin.class).classLoader;
-    }
-
-    public static InputStream getResource(String resource) {
-        return getClassLoader().getResourceAsStream(resource);
+    public static String getTitle() {
+        return TITLE;
     }
 
     public static String getIconFilename() {
-        PluginWrapper wrapper = Hudson.getInstance().getPluginManager().getPlugin(AllureReportPlugin.class);
+        PluginWrapper wrapper = Jenkins.getInstance().getPluginManager().getPlugin(AllureReportPlugin.class);
         return String.format("/plugin/%s/img/icon.png", wrapper.getShortName());
     }
+
+
 }
