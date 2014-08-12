@@ -87,7 +87,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
-        return BuildStepMonitor.STEP;
+        return BuildStepMonitor.NONE;
     }
 
     @Override
