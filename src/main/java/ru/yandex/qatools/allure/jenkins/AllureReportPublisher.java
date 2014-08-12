@@ -155,7 +155,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                     return true;
                 }
 
-                FilePath allureFilePath = build.getRootBuild().getWorkspace().createTempDir("allure", null);
+                FilePath allureFilePath = build.getWorkspace().createTempDir("allure", null);
                 FilePath tmpResultsDirectory = allureFilePath.child(ReportGenerator.RESULTS_PATH);
 
                 logger.println("copy matrix builds results in directory [%s]", tmpResultsDirectory);
