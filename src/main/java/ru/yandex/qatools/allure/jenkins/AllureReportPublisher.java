@@ -134,7 +134,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
         generateReport(build, allureFilePath, logger);
         publishReport(build, logger);
-        delete(allureFilePath, logger);
+        deleteRecursive(allureFilePath, logger);
         logger.println("completed");
 
         return true;
@@ -164,7 +164,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 for (MatrixRun run : build.getExactRuns()) {
                     List<FilePath> resultsDirectories = run.getWorkspace().act(findDirectoriesByGlob(resultsPattern));
                     for (FilePath resultsDirectory : resultsDirectories) {
-                        resultsDirectory.copyRecursiveTo(tmpResultsDirectory);
+                        copyRecursiveTo(resultsDirectory, tmpResultsDirectory, build, logger);
                     }
                 }
 
@@ -175,12 +175,24 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
                 generateReport(build, allureFilePath, logger);
                 publishReport(build, logger);
-                delete(allureFilePath, logger);
+                deleteRecursive(allureFilePath, logger);
 
                 logger.println("completed");
                 return true;
             }
         };
+    }
+
+    private void copyRecursiveTo(FilePath from, FilePath to, AbstractBuild build, PrintStreamWrapper logger)
+            throws IOException, InterruptedException {
+        if (from.isRemote() && to.isRemote()) {
+            FilePath tmpMasterFilePath = new FilePath(build.getRootDir()).createTempDir("allure", null);
+            from.copyRecursiveTo(tmpMasterFilePath);
+            tmpMasterFilePath.copyRecursiveTo(to);
+            deleteRecursive(tmpMasterFilePath, logger);
+        } else {
+            from.copyRecursiveTo(to);
+        }
     }
 
     private void generateReport(AbstractBuild<?, ?> build, FilePath allureFilePath, PrintStreamWrapper logger)
@@ -198,7 +210,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         build.getActions().add(new AllureBuildAction(build));
     }
 
-    private void delete(FilePath filePath, PrintStreamWrapper logger) {
+    private void deleteRecursive(FilePath filePath, PrintStreamWrapper logger) {
         try {
             filePath.deleteContents();
             filePath.deleteRecursive();
