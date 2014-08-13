@@ -40,8 +40,8 @@ public class AllureBuildAction implements BuildBadgeAction {
     }
 
     @SuppressWarnings("unused")
-    public int getBuildNumber() {
-        return build.getNumber();
+    public String getBuildUrl() {
+        return build.getUrl();
     }
 
     @SuppressWarnings("unused")
