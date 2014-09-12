@@ -132,7 +132,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             filePath.copyRecursiveTo(resultsFilePath);
         }
 
-        Boolean includeProperties = getConfig().getIncludeProperties();
+        boolean includeProperties = getConfig().getIncludeProperties();
         if (includeProperties) {
             resultsFilePath.createTempFile("allure", "-environment.properties").
                     act(new PropertiesSaver(build.getBuildVariables(), "Build Properties"));

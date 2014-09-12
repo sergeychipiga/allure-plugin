@@ -45,7 +45,7 @@ public class AllureReportConfig {
         return reportBuildPolicy;
     }
 
-    public Boolean getIncludeProperties() {
+    public boolean getIncludeProperties() {
         return includeProperties == null || includeProperties;
     }
 
