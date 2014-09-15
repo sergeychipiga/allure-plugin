@@ -33,5 +33,8 @@
                 <br/>
             </j:forEach>
         </f:entry>
+        <f:entry title="Include build environment variables" field="includeProperties">
+            <f:checkbox checked="${instance.getConfig().getIncludeProperties()}"/>
+        </f:entry>
     </f:section>
 </j:jelly>

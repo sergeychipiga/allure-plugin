@@ -16,14 +16,17 @@ public class AllureReportConfig {
 
     private final ReportVersionPolicy reportVersionPolicy;
 
+    private final Boolean includeProperties;
+
     @DataBoundConstructor
     public AllureReportConfig(String resultsPattern, String reportVersionCustom,
-                              ReportVersionPolicy reportVersionPolicy, ReportBuildPolicy reportBuildPolicy) {
+                              ReportVersionPolicy reportVersionPolicy, ReportBuildPolicy reportBuildPolicy, Boolean includeProperties) {
 
         this.reportVersionPolicy = reportVersionPolicy;
         this.reportVersionCustom = reportVersionCustom;
         this.reportBuildPolicy = reportBuildPolicy;
         this.resultsPattern = resultsPattern;
+        this.includeProperties = includeProperties;
     }
 
     public String getResultsPattern() {
@@ -42,8 +45,12 @@ public class AllureReportConfig {
         return reportBuildPolicy;
     }
 
+    public boolean getIncludeProperties() {
+        return includeProperties == null || includeProperties;
+    }
+
     public static AllureReportConfig newInstance(String resultsMask, boolean alwaysGenerate) {
         return new AllureReportConfig(resultsMask, null, ReportVersionPolicy.DEFAULT,
-                alwaysGenerate ? ReportBuildPolicy.ALWAYS : ReportBuildPolicy.UNSTABLE);
+                alwaysGenerate ? ReportBuildPolicy.ALWAYS : ReportBuildPolicy.UNSTABLE, true);
     }
 }
