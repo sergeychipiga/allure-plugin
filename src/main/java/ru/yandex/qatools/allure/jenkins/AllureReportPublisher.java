@@ -5,25 +5,27 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
-import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
-import hudson.model.*;
+import hudson.matrix.MatrixRun;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Action;
+import hudson.model.BuildListener;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Recorder;
+import org.kohsuke.stapler.DataBoundConstructor;
+import ru.yandex.qatools.allure.jenkins.config.AllureReportConfig;
+import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
+import ru.yandex.qatools.allure.jenkins.config.ReportVersionPolicy;
+import ru.yandex.qatools.allure.jenkins.utils.PrintStreamWrapper;
+import ru.yandex.qatools.allure.jenkins.utils.PropertiesSaver;
+import ru.yandex.qatools.allure.jenkins.utils.ReportGenerator;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-import ru.yandex.qatools.allure.jenkins.config.AllureReportConfig;
-import ru.yandex.qatools.allure.jenkins.utils.PropertiesSaver;
-import ru.yandex.qatools.allure.jenkins.utils.ReportGenerator;
-import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
-import ru.yandex.qatools.allure.jenkins.config.ReportVersionPolicy;
-import ru.yandex.qatools.allure.jenkins.utils.PrintStreamWrapper;
 
 import static ru.yandex.qatools.allure.jenkins.AllureReportPlugin.getReportBuildDirectory;
 import static ru.yandex.qatools.allure.jenkins.utils.GlobDirectoryFinder.findDirectoriesByGlob;
@@ -129,8 +131,12 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         for (FilePath filePath : resultsFilePaths) {
             filePath.copyRecursiveTo(resultsFilePath);
         }
-        resultsFilePath.createTempFile("allure", "-environment.properties").
-                act(new PropertiesSaver(build.getBuildVariables(), "Build Properties"));
+
+        boolean includeProperties = getConfig().getIncludeProperties();
+        if (includeProperties) {
+            resultsFilePath.createTempFile("allure", "-environment.properties").
+                    act(new PropertiesSaver(build.getBuildVariables(), "Build Properties"));
+         }
 
         generateReport(build, allureFilePath, logger);
         publishReport(build, logger);
@@ -158,7 +164,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 FilePath allureFilePath = build.getWorkspace().createTempDir("allure", null);
                 FilePath tmpResultsDirectory = allureFilePath.child(ReportGenerator.RESULTS_PATH);
 
-                logger.println("copy matrix builds results in directory [%s]", tmpResultsDirectory);
+                logger.println("copy matrix builds results to directory [%s]", tmpResultsDirectory);
 
                 String resultsPattern = getConfig().getResultsPattern();
                 for (MatrixRun run : build.getExactRuns()) {
