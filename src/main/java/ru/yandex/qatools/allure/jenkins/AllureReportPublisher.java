@@ -149,8 +149,18 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
         return new MatrixAggregator(build, launcher, listener) {
 
+            private FilePath allureFilePath = null;
+            private FilePath tmpResultsDirectory = null;
+
             @Override
-            public boolean endBuild() throws InterruptedException, IOException {
+            public boolean startBuild() throws InterruptedException, IOException {
+                allureFilePath = build.getWorkspace().createTempDir("allure", null);
+                tmpResultsDirectory = allureFilePath.child(ReportGenerator.RESULTS_PATH);
+                return true;
+            }
+
+            @Override
+            public boolean endRun(MatrixRun run) throws InterruptedException, IOException {
 
                 PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
 
@@ -161,17 +171,28 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                     return true;
                 }
 
-                FilePath allureFilePath = build.getWorkspace().createTempDir("allure", null);
-                FilePath tmpResultsDirectory = allureFilePath.child(ReportGenerator.RESULTS_PATH);
-
                 logger.println("copy matrix builds results to directory [%s]", tmpResultsDirectory);
 
                 String resultsPattern = getConfig().getResultsPattern();
-                for (MatrixRun run : build.getExactRuns()) {
-                    List<FilePath> resultsDirectories = run.getWorkspace().act(findDirectoriesByGlob(resultsPattern));
-                    for (FilePath resultsDirectory : resultsDirectories) {
+                List<FilePath> resultsDirectories = run.getWorkspace().act(findDirectoriesByGlob(resultsPattern));
+                for (FilePath resultsDirectory : resultsDirectories) {
                         copyRecursiveTo(resultsDirectory, tmpResultsDirectory, build, logger);
-                    }
+                }
+
+                logger.println("completed");
+                return true;
+            }
+
+            @Override
+            public boolean endBuild() throws InterruptedException, IOException {
+
+                PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
+
+                logger.println("started");
+                ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
+                if (!reportBuildPolicy.isNeedToBuildReport(build)) {
+                    logger.println("project build reject by policy [%s]", reportBuildPolicy.getTitle());
+                    return true;
                 }
 
                 if (tmpResultsDirectory.getUsableDiskSpace() == 0) {
