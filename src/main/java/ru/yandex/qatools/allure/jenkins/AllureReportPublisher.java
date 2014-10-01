@@ -153,6 +153,13 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             private FilePath tmpResultsDirectory = null;
 
             @Override
+            public boolean startBuild() throws InterruptedException, IOException {
+                allureFilePath = build.getWorkspace().createTempDir("allure", null);
+                tmpResultsDirectory = allureFilePath.child(ReportGenerator.RESULTS_PATH);
+                return true;
+            }
+
+            @Override
             public boolean endRun(MatrixRun run) throws InterruptedException, IOException {
 
                 PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
@@ -162,11 +169,6 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 if (!reportBuildPolicy.isNeedToBuildReport(build)) {
                     logger.println("project build reject by policy [%s]", reportBuildPolicy.getTitle());
                     return true;
-                }
-
-                if(allureFilePath == null || tmpResultsDirectory == null) {
-                    allureFilePath = build.getWorkspace().createTempDir("allure", null);
-                    tmpResultsDirectory = allureFilePath.child(ReportGenerator.RESULTS_PATH);
                 }
 
                 logger.println("copy matrix builds results to directory [%s]", tmpResultsDirectory);
@@ -190,10 +192,6 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
                 if (!reportBuildPolicy.isNeedToBuildReport(build)) {
                     logger.println("project build reject by policy [%s]", reportBuildPolicy.getTitle());
-                    return true;
-                }
-
-                if (allureFilePath == null || tmpResultsDirectory == null) {
                     return true;
                 }
 
