@@ -27,6 +27,7 @@ public class AllureReportPublisherDescriptor extends BuildStepDescriptor<Publish
 
     public AllureReportPublisherDescriptor() {
         super(AllureReportPublisher.class);
+        load();
     }
 
     @Override
