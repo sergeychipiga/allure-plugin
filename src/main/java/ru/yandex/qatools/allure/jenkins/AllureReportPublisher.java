@@ -169,7 +169,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 if (agregateMatrix) {
                     PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
 
-                    logger.println("started");
+                    logger.println("started at run [%s]", run.getDisplayName());
                     ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
                     if (!reportBuildPolicy.isNeedToBuildReport(build)) {
                         logger.println("project build reject by policy [%s]", reportBuildPolicy.getTitle());
