@@ -3,21 +3,15 @@ package ru.yandex.qatools.allure.jenkins.utils;
 import hudson.FilePath;
 import hudson.remoting.VirtualChannel;
 import ru.yandex.qatools.allure.report.AllureReportBuilder;
-import ru.yandex.qatools.allure.report.utils.AetherObjectFactory;
-import ru.yandex.qatools.allure.report.utils.DependencyResolver;
 
 import java.io.File;
 import java.io.IOException;
-
-import static ru.yandex.qatools.allure.report.utils.AetherObjectFactory.newDependencyResolver;
 
 /**
  * eroshenkoam
  * 7/16/14
  */
 public class ReportGenerator implements FilePath.FileCallable<FilePath> {
-
-    public static final String REPOSITORIES_PATH = "repositories";
 
     public static final String RESULTS_PATH = "results";
 
@@ -32,15 +26,11 @@ public class ReportGenerator implements FilePath.FileCallable<FilePath> {
     @Override
     public FilePath invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
 
-        File repositoriesDirectory = new File(f, REPOSITORIES_PATH);
         File resultsDirectory = new File(f, RESULTS_PATH);
         File reportDirectory = new File(f, REPORT_PATH);
 
         try {
-            DependencyResolver dependencyResolver = newDependencyResolver(repositoriesDirectory,
-                    AetherObjectFactory.MAVEN_CENTRAL_URL, AetherObjectFactory.SONATYPE_RELEASES_URL);
-            AllureReportBuilder allureReportBuilder = new AllureReportBuilder(reportVersion, reportDirectory,
-                    dependencyResolver);
+            AllureReportBuilder allureReportBuilder = new AllureReportBuilder(reportVersion, reportDirectory);
             allureReportBuilder.processResults(resultsDirectory);
             allureReportBuilder.unpackFace();
         } catch (Exception e) {
