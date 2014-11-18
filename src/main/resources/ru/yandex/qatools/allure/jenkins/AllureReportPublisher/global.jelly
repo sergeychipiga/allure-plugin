@@ -4,10 +4,47 @@
     <f:section title="Allure Plugin">
 
         <f:entry title="Default Results Directories" field="resultsPatternDefault">
-            <f:textbox default="${descriptor.getResultsPatternDefault()}" style="width: 90%"/>
+            <f:textbox default="${descriptor.getConfig().getResultsPatternDefault()}" style="width: 90%"/>
         </f:entry>
         <f:entry title="Default Report Version" field="reportVersionDefault">
-            <f:textbox default="${descriptor.getReportVersionDefault()}" style="width: 90%"/>
+            <f:textbox default="${descriptor.getConfig().getReportVersionDefault()}" style="width: 90%"/>
         </f:entry>
+
+        <f:entry title="Proxy Settings:">
+            <table style="width: 100%">
+                <f:radioBlock name="proxySettings" title="Diabled" value="false"
+                              checked="${!descriptor.getConfig().getProxySettings().isActive()}">
+                    <input name="active" type="hidden" value="false"/>
+                    <input name="host" type="hidden" value="${descriptor.getConfig().getProxySettings().getHost()}"/>
+                    <input name="port" type="hidden" value="${descriptor.getConfig().getProxySettings().getPort()}"/>
+                    <input name="username" type="hidden"
+                           value="${descriptor.getConfig().getProxySettings().getUsername()}"/>
+                    <input name="password" type="hidden"
+                           value="${descriptor.getConfig().getProxySettings().getPassword()}"/>
+                </f:radioBlock>
+
+                <f:radioBlock name="proxySettings" title="Active" value="true"
+                              checked="${descriptor.getConfig().getProxySettings().isActive()}">
+                    <input name="active" type="hidden" value="true"/>
+                    <f:entry title="Host">
+                        <f:textbox name="host" style="width:30%"
+                                   value="${descriptor.getConfig().getProxySettings().getHost()}"/>
+                    </f:entry>
+                    <f:entry title="Port">
+                        <f:textbox name="port" style="width:30%"
+                                   value="${descriptor.getConfig().getProxySettings().getPort()}"/>
+                    </f:entry>
+                    <f:entry title="Username">
+                        <f:textbox name="username" style="width:30%"
+                                   value="${descriptor.getConfig().getProxySettings().getUsername()}"/>
+                    </f:entry>
+                    <f:entry title="Password">
+                        <f:password name="password" style="width:30%"
+                                    value="${descriptor.getConfig().getProxySettings().getPassword()}"/>
+                    </f:entry>
+                </f:radioBlock>
+            </table>
+        </f:entry>
+
     </f:section>
 </j:jelly>
