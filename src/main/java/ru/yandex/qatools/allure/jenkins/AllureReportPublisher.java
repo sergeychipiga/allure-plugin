@@ -236,7 +236,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 proxySettings.getHost(),
                 proxySettings.getPort(),
                 proxySettings.getUsername(),
-                proxySettings.getPassword().replaceAll(".", "*")
+                proxySettings.getPassword() == null ? "" : "***"
         );
         allureFilePath.act(new ReportGenerator(reportVersion, proxySettings)).copyRecursiveTo(reportFilePath);
     }
