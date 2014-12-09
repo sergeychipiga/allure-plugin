@@ -1,10 +1,12 @@
 package ru.yandex.qatools.allure.jenkins.config;
 
+import java.io.Serializable;
+
 /**
  * eroshenkoam
  * 19/11/14
  */
-public class ProxySettingsConfig {
+public class ProxySettingsConfig implements Serializable {
 
     private boolean active;
 
