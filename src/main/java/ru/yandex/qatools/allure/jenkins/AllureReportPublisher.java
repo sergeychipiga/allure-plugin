@@ -230,7 +230,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         FilePath reportFilePath = new FilePath(getReportBuildDirectory(build));
         String reportVersion = getConfig().getReportVersionPolicy().equals(ReportVersionPolicy.CUSTOM) ?
                 getConfig().getReportVersionCustom() : getDescriptor().getReportVersionDefault();
-        ProxySettingsConfig proxySettings = getDescriptor().getConfig().getProxySettings();
+        ProxySettingsConfig proxySettings = new ProxySettingsConfig();
         logger.println("proxy settings [active:'%s', host:'%s', port:'%s', username:'%s', password: '%s']",
                 proxySettings.isActive(),
                 proxySettings.getHost(),
