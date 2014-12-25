@@ -79,6 +79,16 @@
                 <artifactId>maven-hpi-plugin</artifactId>
                 <configuration>
                     <pluginFirstClassLoader>true</pluginFirstClassLoader>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>http.proxyHost</key>
+                            <value>localhost</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>http.proxyPort</key>
+                            <value>3306</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
             <plugin>
