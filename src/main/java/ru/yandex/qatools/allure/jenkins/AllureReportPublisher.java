@@ -13,12 +13,14 @@ import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Recorder;
+import org.apache.maven.settings.Proxy;
 import org.kohsuke.stapler.DataBoundConstructor;
 import ru.yandex.qatools.allure.jenkins.config.AllureReportConfig;
 import ru.yandex.qatools.allure.jenkins.config.ReportBuildPolicy;
 import ru.yandex.qatools.allure.jenkins.config.ReportVersionPolicy;
 import ru.yandex.qatools.allure.jenkins.utils.PrintStreamWrapper;
 import ru.yandex.qatools.allure.jenkins.utils.PropertiesSaver;
+import ru.yandex.qatools.allure.jenkins.utils.ProxyBuilder;
 import ru.yandex.qatools.allure.jenkins.utils.ReportGenerator;
 
 import java.io.IOException;
@@ -136,7 +138,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         if (includeProperties) {
             resultsFilePath.createTempFile("allure", "-environment.properties").
                     act(new PropertiesSaver(build.getBuildVariables(), "Build Properties"));
-         }
+        }
 
         generateReport(build, allureFilePath, logger);
         publishReport(build, logger);
@@ -164,7 +166,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
                 PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
 
-                logger.println("started");
+                logger.println("started at run [%s]", run.getDisplayName());
                 ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
                 if (!reportBuildPolicy.isNeedToBuildReport(build)) {
                     logger.println("project build reject by policy [%s]", reportBuildPolicy.getTitle());
@@ -176,7 +178,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                 String resultsPattern = getConfig().getResultsPattern();
                 List<FilePath> resultsDirectories = run.getWorkspace().act(findDirectoriesByGlob(resultsPattern));
                 for (FilePath resultsDirectory : resultsDirectories) {
-                        copyRecursiveTo(resultsDirectory, tmpResultsDirectory, build, logger);
+                    copyRecursiveTo(resultsDirectory, tmpResultsDirectory, build, logger);
                 }
 
                 logger.println("completed");
@@ -229,7 +231,15 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
         FilePath reportFilePath = new FilePath(getReportBuildDirectory(build));
         String reportVersion = getConfig().getReportVersionPolicy().equals(ReportVersionPolicy.CUSTOM) ?
                 getConfig().getReportVersionCustom() : getDescriptor().getReportVersionDefault();
-        allureFilePath.act(new ReportGenerator(reportVersion)).copyRecursiveTo(reportFilePath);
+        Proxy proxySettings = ProxyBuilder.loadHttpProxySettings();
+        logger.println("proxy settings [active:'%s', host:'%s', port:'%s', username:'%s', password: '%s']",
+                proxySettings.isActive(),
+                proxySettings.getHost(),
+                proxySettings.getPort(),
+                proxySettings.getUsername(),
+                proxySettings.getPassword() == null ? "" : "***"
+        );
+        allureFilePath.act(new ReportGenerator(reportVersion, proxySettings)).copyRecursiveTo(reportFilePath);
     }
 
     private void publishReport(AbstractBuild<?, ?> build, PrintStreamWrapper logger) {
