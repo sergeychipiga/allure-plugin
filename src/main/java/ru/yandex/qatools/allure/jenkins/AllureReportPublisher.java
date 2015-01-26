@@ -42,6 +42,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     private static final long serialVersionUID = 1L;
 
     private final AllureReportConfig config;
+    private final String REPORT_DIR_PREFIX = "allure";
 
     /**
      * @deprecated since 1.3.1
@@ -71,6 +72,8 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             return AllureReportConfig.newInstance(resultPattern, alwaysGenerate);
         }
     }
+
+    final boolean agregateMatrix = getConfig().getAgregateMatrix();
 
     @Deprecated
     public String getResultsPath() {
@@ -106,7 +109,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             throws InterruptedException, IOException {
 
         PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
-        FilePath allureFilePath = build.getWorkspace().createTempDir("allure", null);
+        FilePath allureFilePath = build.getWorkspace().createTempDir(REPORT_DIR_PREFIX, null);
 
         logger.println("started");
         ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
@@ -140,6 +143,32 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
         generateReport(build, allureFilePath, logger);
         publishReport(build, logger);
+
+        /*
+        Its chunk of code copies raw data to matrix build allure dir in order to generate aggregated report.
+
+        It is not possible to move this code to MatrixAggregator->endRun, because endRun executed according
+        its triggering queue (despite of the run can be completed so long ago), and by the beginning of
+        executing the slave can be off already (for ex. with jclouds plugin).
+
+        It is not possible to make a method like MatrixAggregator->simulatedEndRun and call its from here,
+        because AllureReportPublisher is singleton for job, and it can't store state objects to communicate
+        between perform and createAggregator, because for concurrent builds (Jenkins provides such feature)
+        state objects will be corrupted.
+         */
+        if (build instanceof MatrixRun) {
+            if (getConfig().getAgregateMatrix()){
+                MatrixBuild mb = ((MatrixRun) build).getParentBuild();
+                FilePath tmpResultsDirectory = getAggregationDir(mb).child(ReportGenerator.RESULTS_PATH);
+
+                logger.println("copy matrix build results to directory [%s]", tmpResultsDirectory);
+
+                for (FilePath resultsDirectory : resultsFilePaths) {
+                    copyRecursiveTo(resultsDirectory, tmpResultsDirectory, mb, logger);
+                }
+            }
+        }
+
         deleteRecursive(allureFilePath, logger);
         logger.println("completed");
 
@@ -152,39 +181,14 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
         return new MatrixAggregator(build, launcher, listener) {
 
-            private FilePath allureFilePath = null;
+            private FilePath aggregatedAllureFilePath = null;
             private FilePath tmpResultsDirectory = null;
 
             @Override
             public boolean startBuild() throws InterruptedException, IOException {
                 if (agregateMatrix) {
-                    allureFilePath = build.getWorkspace().createTempDir("allure", null);
-                    tmpResultsDirectory = allureFilePath.child(ReportGenerator.RESULTS_PATH);
-                }
-                return true;
-            }
-
-            @Override
-            public boolean endRun(MatrixRun run) throws InterruptedException, IOException {
-                if (agregateMatrix) {
-                    PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
-
-                    logger.println("started at run [%s]", run.getDisplayName());
-                    ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
-                    if (!reportBuildPolicy.isNeedToBuildReport(build)) {
-                        logger.println("project build reject by policy [%s]", reportBuildPolicy.getTitle());
-                        return true;
-                    }
-
-                    logger.println("copy matrix builds results to directory [%s]", tmpResultsDirectory);
-
-                    String resultsPattern = getConfig().getResultsPattern();
-                    List<FilePath> resultsDirectories = run.getWorkspace().act(findDirectoriesByGlob(resultsPattern));
-                    for (FilePath resultsDirectory : resultsDirectories) {
-                            copyRecursiveTo(resultsDirectory, tmpResultsDirectory, build, logger);
-                    }
-
-                    logger.println("completed");
+                    aggregatedAllureFilePath = getAggregationDir(build);
+                    tmpResultsDirectory = aggregatedAllureFilePath.child(ReportGenerator.RESULTS_PATH);
                 }
                 return true;
             }
@@ -206,21 +210,27 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
                         return true;
                     }
 
-                    generateReport(build, allureFilePath, logger);
+                    generateReport(build, aggregatedAllureFilePath, logger);
                     publishReport(build, logger);
-                    deleteRecursive(allureFilePath, logger);
+                    deleteRecursive(aggregatedAllureFilePath, logger);
 
                     logger.println("completed");
                 }
+
                 return true;
             }
         };
     }
 
+    private FilePath getAggregationDir(AbstractBuild<?, ?> build) {
+        String curBuildNumber = Integer.toString(build.getNumber());
+        return build.getWorkspace().child(REPORT_DIR_PREFIX + curBuildNumber);
+    }
+
     private void copyRecursiveTo(FilePath from, FilePath to, AbstractBuild build, PrintStreamWrapper logger)
             throws IOException, InterruptedException {
         if (from.isRemote() && to.isRemote()) {
-            FilePath tmpMasterFilePath = new FilePath(build.getRootDir()).createTempDir("allure", null);
+            FilePath tmpMasterFilePath = new FilePath(build.getRootDir()).createTempDir(REPORT_DIR_PREFIX, null);
             from.copyRecursiveTo(tmpMasterFilePath);
             tmpMasterFilePath.copyRecursiveTo(to);
             deleteRecursive(tmpMasterFilePath, logger);
