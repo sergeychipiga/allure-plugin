@@ -177,20 +177,11 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
         return new MatrixAggregator(build, launcher, listener) {
 
-            private FilePath aggregatedAllureFilePath = null;
-            private FilePath tmpResultsDirectory = null;
-
-            @Override
-            public boolean startBuild() throws InterruptedException, IOException {
-
-                aggregatedAllureFilePath = getAggregationDir(build);
-                tmpResultsDirectory = aggregatedAllureFilePath.child(ReportGenerator.RESULTS_PATH);
-
-                return true;
-            }
-
             @Override
             public boolean endBuild() throws InterruptedException, IOException {
+
+                FilePath aggregatedAllureFilePath = getAggregationDir(build);
+                FilePath tmpResultsDirectory = aggregatedAllureFilePath.child(ReportGenerator.RESULTS_PATH);
 
                 PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
 
@@ -218,6 +209,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
     private FilePath getAggregationDir(AbstractBuild<?, ?> build) {
         String curBuildNumber = Integer.toString(build.getNumber());
+        // child(...) works as get or create directory method
         return build.getWorkspace().child(REPORT_DIR_PREFIX + curBuildNumber);
     }
 
