@@ -23,6 +23,7 @@ import ru.yandex.qatools.allure.jenkins.utils.PropertiesSaver;
 import ru.yandex.qatools.allure.jenkins.utils.ProxyBuilder;
 import ru.yandex.qatools.allure.jenkins.utils.ReportGenerator;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     private static final long serialVersionUID = 1L;
 
     private final AllureReportConfig config;
-    private final String REPORT_DIR_PREFIX = "allure";
+    private final String REPORT_DIR_PREFIX = "allure_";
 
     /**
      * @deprecated since 1.3.1
@@ -109,7 +110,18 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             throws InterruptedException, IOException {
 
         PrintStreamWrapper logger = new PrintStreamWrapper(listener.getLogger());
-        FilePath allureFilePath = build.getWorkspace().createTempDir(REPORT_DIR_PREFIX, null);
+
+        FilePath allureFilePath;
+
+        final String CUSTOM_REPORT_FOLDER = build.getBuildVariables().get("ALLURE_REPORT_FOLDER");
+
+        logger.println("custom report folder %s", CUSTOM_REPORT_FOLDER);
+
+        if (CUSTOM_REPORT_FOLDER == null) {
+            allureFilePath = build.getWorkspace().createTempDir(REPORT_DIR_PREFIX, null);
+        } else {
+            allureFilePath = new FilePath(new File(CUSTOM_REPORT_FOLDER));
+        }
 
         logger.println("started");
         ReportBuildPolicy reportBuildPolicy = getConfig().getReportBuildPolicy();
@@ -168,7 +180,9 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
             }
         }
 
-        deleteRecursive(allureFilePath, logger);
+        if (CUSTOM_REPORT_FOLDER == null) {
+            deleteRecursive(allureFilePath, logger);
+        }
         logger.println("completed");
 
         return true;
@@ -199,7 +213,10 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
 
                 generateReport(build, aggregatedAllureFilePath, logger);
                 publishReport(build, logger);
-                deleteRecursive(aggregatedAllureFilePath, logger);
+
+                if (build.getBuildVariables().get("ALLURE_MATRIX_REPORT_FOLDER") == null) {
+                    deleteRecursive(aggregatedAllureFilePath, logger);
+                }
 
                 logger.println("completed");
                 return true;
@@ -208,9 +225,14 @@ public class AllureReportPublisher extends Recorder implements Serializable, Mat
     }
 
     private FilePath getAggregationDir(AbstractBuild<?, ?> build) {
-        String curBuildNumber = Integer.toString(build.getNumber());
-        // child(...) works as get or create directory method
-        return build.getWorkspace().child(REPORT_DIR_PREFIX + curBuildNumber);
+        final String CUSTOM_MATRIX_REPORT_FOLDER = build.getBuildVariables().get("ALLURE_MATRIX_REPORT_FOLDER");
+
+        if (CUSTOM_MATRIX_REPORT_FOLDER == null) {
+            String postfix = Integer.toString(build.getNumber());
+            return build.getWorkspace().child(REPORT_DIR_PREFIX + postfix);
+        } else {
+            return new FilePath(new File(CUSTOM_MATRIX_REPORT_FOLDER));
+        }
     }
 
     private void copyRecursiveTo(FilePath from, FilePath to, AbstractBuild build, PrintStreamWrapper logger)
